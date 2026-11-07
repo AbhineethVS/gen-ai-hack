@@ -302,6 +302,12 @@ export default function CreateFlow() {
                 idx: panel.idx,
                 character_description: characterDescription,
                 scene_description: panel.scene_description,
+                caption_text:
+                  lang === "en"
+                    ? panel.caption_en || panel.caption_ml
+                    : panel.caption_ml || panel.caption_en,
+                dialogue_lines: panel.dialogue,
+                bake_text: true,
                 use_style_refs: true,
               }),
             });
@@ -312,6 +318,7 @@ export default function CreateFlow() {
                   ? {
                       ...p,
                       image_url: data.image_url,
+                      text_baked: Boolean(data.text_baked),
                       error: res.ok ? undefined : data.error || "Failed",
                     }
                   : p,

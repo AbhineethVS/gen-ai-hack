@@ -9,6 +9,7 @@ export type StoryPanel = {
   caption_ml: string;
   caption_en: string;
   dialogue: DialogueLine[];
+  text_baked?: boolean;
 };
 
 export type CharacterSheet = {
@@ -45,6 +46,7 @@ export type BookRecord = {
     scene_description: string;
     dialogue: DialogueLine[];
     image_url: string | null;
+    text_baked?: boolean;
   }>;
 };
 

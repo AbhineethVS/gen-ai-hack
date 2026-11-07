@@ -15,7 +15,7 @@ export async function GET(
     const { data: book, error } = await supabase
       .from("books")
       .select(
-        "id, title_ml, title_en, narrator_label, character_sheet, is_public, is_demo, created_at, panels(id, idx, caption_ml, caption_en, scene_description, dialogue, image_url)",
+        "id, title_ml, title_en, narrator_label, character_sheet, is_public, is_demo, created_at, panels(id, idx, caption_ml, caption_en, scene_description, dialogue, image_url, text_baked)",
       )
       .eq("id", id)
       .single();

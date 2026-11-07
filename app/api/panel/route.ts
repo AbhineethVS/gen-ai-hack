@@ -67,6 +67,20 @@ export async function POST(req: Request) {
     const idx = Number(body.idx ?? body.index ?? 0);
     const bookId = String(body.book_id ?? "risk");
     const useStyleRefs = body.use_style_refs !== false;
+    const bakeText = Boolean(body.bake_text);
+    const captionText = String(body.caption_text ?? body.caption ?? "").trim();
+    const dialogueLines = Array.isArray(body.dialogue_lines)
+      ? body.dialogue_lines
+          .map((line: unknown) => {
+            if (!line || typeof line !== "object") return null;
+            const o = line as Record<string, unknown>;
+            const speaker = String(o.speaker ?? "").trim();
+            const text = String(o.text ?? o.text_ml ?? "").trim();
+            if (!text) return null;
+            return { speaker, text };
+          })
+          .filter(Boolean)
+      : [];
 
     if (characterDescription.length < 20) {
       characterDescription = DEFAULT_CHARACTER_DESCRIPTION;
@@ -99,6 +113,9 @@ export async function POST(req: Request) {
       characterDescription,
       sceneDescription,
       withStyleRefs,
+      bakeText,
+      captionText,
+      dialogueLines: dialogueLines as { speaker?: string; text?: string }[],
     });
 
     let imageRes = withStyleRefs
@@ -113,6 +130,9 @@ export async function POST(req: Request) {
         characterDescription,
         sceneDescription,
         withStyleRefs: false,
+        bakeText,
+        captionText,
+        dialogueLines: dialogueLines as { speaker?: string; text?: string }[],
       }) });
       imageData = await imageRes.json().catch(() => ({}));
     }
@@ -160,7 +180,7 @@ export async function POST(req: Request) {
     if (bookId && bookId !== "risk") {
       await supabase
         .from("panels")
-        .update({ image_url: imageUrl })
+        .update({ image_url: imageUrl, text_baked: bakeText })
         .eq("book_id", bookId)
         .eq("idx", idx);
     }
@@ -170,6 +190,7 @@ export async function POST(req: Request) {
       image_url: imageUrl,
       path,
       style_refs: withStyleRefs,
+      text_baked: bakeText,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Panel failed";

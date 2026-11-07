@@ -14,19 +14,36 @@ export function buildPanelPrompt(params: {
   characterDescription: string;
   sceneDescription: string;
   withStyleRefs?: boolean;
+  bakeText?: boolean;
+  captionText?: string;
+  dialogueLines?: { speaker?: string; text?: string }[];
 }) {
   const refNote = params.withStyleRefs
-    ? `Match ONLY the art technique of the reference images (line weight, flat colour, comic framing, empty bubble space).
+    ? `Match ONLY the art technique of the reference images (line weight, flat colour, comic framing).
 Do NOT copy the reference characters, faces, clothes, culture-specific props, or story.
 Redraw as an original Indian children's comic panel for the scene below.`
     : "";
+  const dialogue = (params.dialogueLines || [])
+    .map((line) => `${line.speaker || "Character"}: ${line.text || ""}`.trim())
+    .filter(Boolean)
+    .join("\n");
+  const textInstruction = params.bakeText
+    ? `Experimental text-in-image mode:
+Draw clean comic speech bubbles and one small narration caption box inside the image.
+Use ONLY the exact text below. Do not invent or paraphrase words.
+Speech bubble text:
+${dialogue || "(none)"}
+Narration caption:
+${params.captionText || "(none)"}
+Keep lettering large, readable, correctly spelled, and inside the bubbles/caption.`
+    : `Leave clear empty space near the top of the image for speech bubbles to be overlaid later in HTML.
+Do NOT include any text, letters, words, speech bubbles, signs or watermarks inside the image.`;
 
   return `${STYLE_PREFIX}
 ${refNote}
 Main character (keep identical in every panel): ${params.characterDescription}
 Scene: ${params.sceneDescription}
 Setting: India — follow the region and place described in the scene (village, city, coast, hills, etc.). Warm, gentle, child-friendly.
-Leave clear empty space near the top of the image for speech bubbles to be overlaid later in HTML.
-Do NOT include any text, letters, words, speech bubbles, signs or watermarks inside the image.
+${textInstruction}
 Square composition.`;
 }

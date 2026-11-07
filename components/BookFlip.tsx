@@ -16,6 +16,7 @@ export type FlipPanel = {
   caption_en?: string | null;
   dialogue?: DialogueLine[] | null;
   image_url?: string | null;
+  text_baked?: boolean | null;
   error?: string;
 };
 
@@ -67,7 +68,8 @@ function ComicCard({
     lang === "en"
       ? panel.caption_en || panel.caption_ml
       : panel.caption_ml || panel.caption_en;
-  const dialogue = normalizeDialogue(panel.dialogue);
+  const textBaked = Boolean(panel.text_baked);
+  const dialogue = textBaked ? [] : normalizeDialogue(panel.dialogue);
 
   return (
     <div className="comic-card">
@@ -93,7 +95,7 @@ function ComicCard({
         </div>
       ) : null}
 
-      {caption ? <p className="comic-card__caption">{caption}</p> : null}
+      {caption && !textBaked ? <p className="comic-card__caption">{caption}</p> : null}
       <span className="comic-card__page">{pageNumber}</span>
     </div>
   );
