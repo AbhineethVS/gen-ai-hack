@@ -50,11 +50,15 @@ export default function ComicPanel({
       ? panel.caption_en || panel.caption_ml || ""
       : panel.caption_ml || panel.caption_en || "";
   const dialogue = panel.text_baked ? [] : (panel.dialogue || []).slice(0, 3);
-  const layouts = layoutDialogue(dialogue);
+  const layouts = layoutDialogue(dialogue, lang);
 
   function changeDialogue(index: number, text: string) {
     const next = dialogue.map((line, lineIndex) =>
-      lineIndex === index ? { ...line, text_ml: text } : line,
+      lineIndex === index
+        ? lang === "en"
+          ? { ...line, text_en: text }
+          : { ...line, text_ml: text }
+        : line,
     );
     onChange?.({ dialogue: next });
   }
@@ -78,8 +82,16 @@ export default function ComicPanel({
         ? dialogue.map((line, index) => (
             <SpeechBubble
               key={`${line.speaker}-${index}-${pageNumber}`}
-              speaker={line.speaker}
-              text={line.text_ml}
+              speaker={
+                lang === "en"
+                  ? line.speaker_en || line.speaker
+                  : line.speaker || line.speaker_en
+              }
+              text={
+                lang === "en"
+                  ? line.text_en || line.text_ml
+                  : line.text_ml || line.text_en || ""
+              }
               layout={layouts[index]}
               editable={editable}
               onChange={(text) => changeDialogue(index, text)}

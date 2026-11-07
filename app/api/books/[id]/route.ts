@@ -59,7 +59,13 @@ export async function PATCH(
       panelUpdate.dialogue = body.dialogue.slice(0, 3).map(
         (line: Record<string, unknown>) => ({
           speaker: String(line.speaker || "").trim().slice(0, 80),
+          speaker_en: String(line.speaker_en || line.speaker || "")
+            .trim()
+            .slice(0, 80),
           text_ml: String(line.text_ml || "").trim().slice(0, 240),
+          text_en: String(line.text_en || line.text_ml || "")
+            .trim()
+            .slice(0, 240),
           placement: String(line.placement || "").trim() || undefined,
           tail_target:
             line.tail_target && typeof line.tail_target === "object"

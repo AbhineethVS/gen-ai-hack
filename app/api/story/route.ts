@@ -44,7 +44,9 @@ Rules:
 - Captions are NARRATION (the storyteller's voice). Spoken words go in "dialogue".
 - Across the 4 panels, include dialogue on at least 2 panels when anyone speaks
   or reacts. Each "dialogue" array has 0-2 short lines:
-  {speaker, text_ml, placement, tail_target}. text_ml is in Malayalam script.
+  {speaker, speaker_en, text_ml, text_en, placement, tail_target}.
+  speaker and text_ml are natural Malayalam in Malayalam script. speaker_en and
+  text_en are natural English translations with exactly the same meaning.
   placement is one of top-left, top-right, middle-left, middle-right.
   tail_target is the intended speaker location as normalized {x,y} values from
   0 to 1 within the image. Keep lines very short. Use [] only when silent.

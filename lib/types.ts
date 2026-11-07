@@ -11,7 +11,9 @@ export type NormalizedPoint = {
 
 export type DialogueLine = {
   speaker: string;
+  speaker_en?: string;
   text_ml: string;
+  text_en?: string;
   placement?: BubblePlacement;
   tail_target?: NormalizedPoint;
 };

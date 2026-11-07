@@ -2,6 +2,7 @@ import type {
   BubblePlacement,
   DialogueLine,
   NormalizedPoint,
+  UILang,
 } from "@/lib/types";
 
 export type BubbleLayout = {
@@ -47,8 +48,12 @@ function defaultTarget(placement: BubblePlacement): NormalizedPoint {
   };
 }
 
-function estimateBox(line: DialogueLine) {
-  const length = [...line.text_ml].length + [...line.speaker].length * 0.35;
+function estimateBox(line: DialogueLine, lang: UILang) {
+  const text =
+    lang === "en" ? line.text_en || line.text_ml : line.text_ml || line.text_en || "";
+  const speaker =
+    lang === "en" ? line.speaker_en || line.speaker : line.speaker || line.speaker_en || "";
+  const length = [...text].length + [...speaker].length * 0.35;
   const width = length > 44 ? 0.46 : length > 28 ? 0.41 : 0.35;
   const charsPerLine = Math.max(14, Math.round(width * 48));
   const lines = Math.max(1, Math.ceil(length / charsPerLine));
@@ -60,7 +65,10 @@ function estimateBox(line: DialogueLine) {
  * Deterministic layout: honor the LLM hint, then test alternate zones until
  * bubbles no longer collide. The lower quarter remains free for narration.
  */
-export function layoutDialogue(lines: DialogueLine[]): BubbleLayout[] {
+export function layoutDialogue(
+  lines: DialogueLine[],
+  lang: UILang = "ml",
+): BubbleLayout[] {
   const placed: BubbleLayout[] = [];
 
   for (const [index, line] of lines.slice(0, 3).entries()) {
@@ -74,7 +82,7 @@ export function layoutDialogue(lines: DialogueLine[]): BubbleLayout[] {
       preferred,
       ...CANDIDATES.filter((candidate) => candidate !== preferred),
     ];
-    const size = estimateBox(line);
+    const size = estimateBox(line, lang);
 
     let chosen: BubbleLayout | null = null;
     for (const placement of order) {

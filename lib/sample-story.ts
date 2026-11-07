@@ -29,7 +29,12 @@ export const SAMPLE_STORY_JSON = {
         "Warm Kerala kitchen at dawn, Ammachi steaming puttu, little Anu watching dragonflies through the window over a canal. Soft morning light. Clear empty space near the top of the frame.",
       caption_ml: "മുത്തശ്ശി അതിരാവിലെ അനുവിന് പുട്ട് ഉണ്ടാക്കി.",
       caption_en: "At dawn, Ammachi made puttu for little Anu.",
-      dialogue: [] as { speaker: string; text_ml: string }[],
+      dialogue: [] as {
+        speaker: string;
+        speaker_en?: string;
+        text_ml: string;
+        text_en?: string;
+      }[],
     },
     {
       idx: 2,
@@ -37,7 +42,14 @@ export const SAMPLE_STORY_JSON = {
         "The kitchen goes dim as power fails, steamer stops steaming, Anu looks worried, Ammachi calm beside an unlit lamp. Empty space near the top.",
       caption_ml: "പെട്ടെന്ന് വൈദ്യുതി മുറിഞ്ഞു. അനു ദുഃഖിച്ചു.",
       caption_en: "Suddenly the power went out. Anu felt sad.",
-      dialogue: [{ speaker: "അനു", text_ml: "പുട്ട് നിർത്തി!" }],
+      dialogue: [
+        {
+          speaker: "അനു",
+          speaker_en: "Anu",
+          text_ml: "പുട്ട് നിർത്തി!",
+          text_en: "The puttu stopped!",
+        },
+      ],
     },
     {
       idx: 3,
@@ -46,7 +58,12 @@ export const SAMPLE_STORY_JSON = {
       caption_ml: "മുത്തശ്ശി വിളക്ക് കത്തിച്ചു ചിരിച്ചു.",
       caption_en: "Ammachi lit a lamp and smiled.",
       dialogue: [
-        { speaker: "മുത്തശ്ശി", text_ml: "ഇരുട്ടിന് ചൂടൻ കാലത്തിനെ തടയാനാവില്ല." },
+        {
+          speaker: "മുത്തശ്ശി",
+          speaker_en: "Ammachi",
+          text_ml: "ഇരുട്ടിന് ചൂടൻ കാലത്തിനെ തടയാനാവില്ല.",
+          text_en: "Even darkness cannot stop a warm breakfast.",
+        },
       ],
     },
     {

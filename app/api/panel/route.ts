@@ -75,7 +75,7 @@ export async function POST(req: Request) {
             if (!line || typeof line !== "object") return null;
             const o = line as Record<string, unknown>;
             const speaker = String(o.speaker ?? "").trim();
-            const text = String(o.text ?? o.text_ml ?? "").trim();
+            const text = String(o.text ?? o.text_ml ?? o.text_en ?? "").trim();
             if (!text) return null;
             const target =
               o.tail_target && typeof o.tail_target === "object"

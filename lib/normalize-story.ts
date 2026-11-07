@@ -49,7 +49,9 @@ function normalizeDialogue(raw: unknown) {
   if (!Array.isArray(raw)) {
     return [] as {
       speaker: string;
+      speaker_en?: string;
       text_ml: string;
+      text_en?: string;
       placement?: string;
       tail_target?: { x: number; y: number };
     }[];
@@ -59,7 +61,9 @@ function normalizeDialogue(raw: unknown) {
       if (typeof item === "string" && item.trim()) {
         return {
           speaker: "…",
+          speaker_en: "…",
           text_ml: item.trim(),
+          text_en: item.trim(),
           placement: index % 2 === 0 ? "top-left" : "top-right",
         };
       }
@@ -67,6 +71,11 @@ function normalizeDialogue(raw: unknown) {
       const o = item as Record<string, unknown>;
       const speaker =
         asString(o.speaker) || asString(o.name) || asString(o.character) || "…";
+      const speaker_en =
+        asString(o.speaker_en) ||
+        asString(o.speakerEnglish) ||
+        asString(o.name_en) ||
+        speaker;
       const text_ml =
         asString(o.text_ml) ||
         asString(o.text) ||
@@ -74,6 +83,11 @@ function normalizeDialogue(raw: unknown) {
         asString(o.dialogue) ||
         asString(o.caption_ml);
       if (!text_ml) return null;
+      const text_en =
+        asString(o.text_en) ||
+        asString(o.textEnglish) ||
+        asString(o.dialogue_en) ||
+        text_ml;
       const placementRaw = asString(o.placement);
       const placement = [
         "top-left",
@@ -98,11 +112,20 @@ function normalizeDialogue(raw: unknown) {
               y: Math.min(1, Math.max(0, y)),
             }
           : undefined;
-      return { speaker, text_ml, placement, tail_target };
+      return {
+        speaker,
+        speaker_en,
+        text_ml,
+        text_en,
+        placement,
+        tail_target,
+      };
     })
     .filter(Boolean) as {
     speaker: string;
+    speaker_en?: string;
     text_ml: string;
+    text_en?: string;
     placement?: string;
     tail_target?: { x: number; y: number };
   }[];
@@ -148,7 +171,12 @@ function syntheticPanel(i: number, seedCaption: string) {
     scene_description: `Indian children's comic illustration for: ${caption}. Empty space near the top. No text.`,
     caption_ml: caption,
     caption_en: caption,
-    dialogue: [] as { speaker: string; text_ml: string }[],
+    dialogue: [] as {
+      speaker: string;
+      speaker_en?: string;
+      text_ml: string;
+      text_en?: string;
+    }[],
   };
 }
 
