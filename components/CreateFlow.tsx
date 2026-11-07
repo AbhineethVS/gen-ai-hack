@@ -30,8 +30,10 @@ export default function CreateFlow() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode = searchParams.get("mode") === "type" ? "type" : "record";
+  const initialLang: UILang =
+    searchParams.get("lang") === "en" ? "en" : "ml";
 
-  const [lang, setLang] = useState<UILang>("ml");
+  const [lang, setLang] = useState<UILang>(initialLang);
   const [step, setStep] = useState<Step>(initialMode);
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);

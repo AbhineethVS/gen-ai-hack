@@ -2,44 +2,87 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { UILang } from "@/lib/types";
 
-type Phase = "splash" | "rise" | "ready";
+type Phase = "splash" | "rise" | "lang" | "ready";
 
 export default function HomeSplash() {
   const [phase, setPhase] = useState<Phase>("splash");
+  const [lang, setLang] = useState<UILang | null>(null);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setPhase("ready");
+      setPhase("lang");
       return;
     }
 
-    const rise = window.setTimeout(() => setPhase("rise"), 1100);
-    const ready = window.setTimeout(() => setPhase("ready"), 1900);
+    const rise = window.setTimeout(() => setPhase("rise"), 900);
+    const langPhase = window.setTimeout(() => setPhase("lang"), 1750);
     return () => {
       window.clearTimeout(rise);
-      window.clearTimeout(ready);
+      window.clearTimeout(langPhase);
     };
   }, []);
+
+  function pickLang(next: UILang) {
+    setLang(next);
+    setPhase("ready");
+  }
+
+  const showLang = phase === "lang" || phase === "ready";
+  const showActions = phase === "ready" && Boolean(lang);
 
   return (
     <main className={`home-stage home-stage--${phase}`}>
       <div className="home-stage__brand">
         <h1 className="font-display home-stage__title">മുത്തശ്ശി കഥ</h1>
-        <p className="home-stage__sub">Muthashi Kadha</p>
       </div>
 
-      <div className="home-stage__actions" aria-hidden={phase !== "ready"}>
-        <Link href="/create?mode=record" className="home-mic">
-          കഥ പറയൂ
-        </Link>
-        <Link href="/create?mode=type" className="home-link">
-          ടൈപ്പ് ചെയ്യുക
-        </Link>
-        <Link href="/library" className="home-link home-link--muted">
-          കുട്ടികളുടെ ലൈബ്രറി
-        </Link>
+      <div className="home-stage__below">
+        <div
+          className={`home-stage__lang ${showLang ? "is-in" : ""}`}
+          aria-hidden={!showLang}
+        >
+          <p className="home-stage__lang-label">Language / ഭാഷ</p>
+          <div className="home-stage__lang-row">
+            <button
+              type="button"
+              onClick={() => pickLang("ml")}
+              className={`home-lang-btn ${lang === "ml" ? "home-lang-btn--on" : ""}`}
+            >
+              മലയാളം
+            </button>
+            <button
+              type="button"
+              onClick={() => pickLang("en")}
+              className={`home-lang-btn ${lang === "en" ? "home-lang-btn--on" : ""}`}
+            >
+              English
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`home-stage__actions ${showActions ? "is-in" : ""}`}
+          aria-hidden={!showActions}
+        >
+          <Link
+            href={`/create?mode=record&lang=${lang ?? "ml"}`}
+            className="home-mic"
+          >
+            {lang === "en" ? "Tell a story" : "കഥ പറയൂ"}
+          </Link>
+          <Link
+            href={`/create?mode=type&lang=${lang ?? "ml"}`}
+            className="home-link"
+          >
+            {lang === "en" ? "Type instead" : "ടൈപ്പ് ചെയ്യുക"}
+          </Link>
+          <Link href="/library" className="home-link home-link--muted">
+            {lang === "en" ? "Children's library" : "കുട്ടികളുടെ ലൈബ്രറി"}
+          </Link>
+        </div>
       </div>
     </main>
   );
