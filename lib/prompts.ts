@@ -16,7 +16,12 @@ export function buildPanelPrompt(params: {
   withStyleRefs?: boolean;
   bakeText?: boolean;
   captionText?: string;
-  dialogueLines?: { speaker?: string; text?: string }[];
+  dialogueLines?: {
+    speaker?: string;
+    text?: string;
+    placement?: string;
+    tailTarget?: { x: number; y: number };
+  }[];
 }) {
   const refNote = params.withStyleRefs
     ? `Match ONLY the art technique of the reference images (line weight, flat colour, comic framing).
@@ -27,6 +32,14 @@ Redraw as an original Indian children's comic panel for the scene below.`
     .map((line) => `${line.speaker || "Character"}: ${line.text || ""}`.trim())
     .filter(Boolean)
     .join("\n");
+  const overlayPlan = (params.dialogueLines || [])
+    .map((line) => {
+      const target = line.tailTarget
+        ? `speaker near (${line.tailTarget.x.toFixed(2)}, ${line.tailTarget.y.toFixed(2)})`
+        : "speaker clearly visible";
+      return `${line.placement || "top"} bubble zone; ${target}`;
+    })
+    .join("; ");
   const textInstruction = params.bakeText
     ? `Experimental text-in-image mode:
 Draw clean comic speech bubbles and one small narration caption box inside the image.
@@ -36,8 +49,10 @@ ${dialogue || "(none)"}
 Narration caption:
 ${params.captionText || "(none)"}
 Keep lettering large, readable, correctly spelled, and inside the bubbles/caption.`
-    : `Leave clear empty space near the top of the image for speech bubbles to be overlaid later in HTML.
-Do NOT include any text, letters, words, speech bubbles, signs or watermarks inside the image.`;
+    : `Compose for later HTML comic overlays. Keep faces expressive and clearly visible.
+Preserve natural negative space in these intended bubble zones: ${overlayPlan || "upper corners"}.
+Keep the bottom quarter visually calm for a small narration strip, but do not make the scene unnaturally empty.
+Do NOT include any text, letters, words, speech bubbles, captions, signs or watermarks inside the image.`;
 
   return `${STYLE_PREFIX}
 ${refNote}

@@ -1,6 +1,19 @@
+export type BubblePlacement =
+  | "top-left"
+  | "top-right"
+  | "middle-left"
+  | "middle-right";
+
+export type NormalizedPoint = {
+  x: number;
+  y: number;
+};
+
 export type DialogueLine = {
   speaker: string;
   text_ml: string;
+  placement?: BubblePlacement;
+  tail_target?: NormalizedPoint;
 };
 
 export type StoryPanel = {

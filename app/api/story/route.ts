@@ -43,9 +43,13 @@ Rules:
   with another demo story. Keep it warm, simple, and short: each caption max 2 short sentences.
 - Captions are NARRATION (the storyteller's voice). Spoken words go in "dialogue".
 - Across the 4 panels, include dialogue on at least 2 panels when anyone speaks
-  or reacts. Each "dialogue" array has 0-2 short lines: {speaker, text_ml}
-  in Malayalam script for speech bubbles. Keep lines very short. Use [] only
-  when the panel is silent.
+  or reacts. Each "dialogue" array has 0-2 short lines:
+  {speaker, text_ml, placement, tail_target}. text_ml is in Malayalam script.
+  placement is one of top-left, top-right, middle-left, middle-right.
+  tail_target is the intended speaker location as normalized {x,y} values from
+  0 to 1 within the image. Keep lines very short. Use [] only when silent.
+- Pick different placements when a panel has two bubbles. Place bubbles away
+  from faces and reserve the bottom quarter for the narration caption.
 - Create a single "character_sheet" object with "name" and a NON-EMPTY
   "description" string of fixed visual details (age, face, hair, clothing colours,
   accessories) for THIS story's characters. description must be at least one full sentence.
@@ -54,7 +58,9 @@ Rules:
   role), phone numbers, addresses, exact house/location details.
 - Child-safety check: set child_safe=false if unsuitable for children; mild sadness is fine.
 - Scene descriptions must be visual and concrete, in English, with NO text, signs,
-  or lettering in the scene. Leave clear empty space near the top for HTML speech bubbles.
+  or lettering. Mention where speaking characters stand so the image composition
+  agrees with tail_target. Preserve some natural negative space in the requested
+  bubble zones and keep the bottom quarter visually calm for narration.
 
 Return ONLY valid JSON with keys: title_ml, title_en, character_sheet, panels (exactly 4), safety.`;
 

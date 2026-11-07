@@ -46,11 +46,22 @@ function sceneDescription(panel: LoosePanel, fallbackCaption: string): string {
 }
 
 function normalizeDialogue(raw: unknown) {
-  if (!Array.isArray(raw)) return [] as { speaker: string; text_ml: string }[];
+  if (!Array.isArray(raw)) {
+    return [] as {
+      speaker: string;
+      text_ml: string;
+      placement?: string;
+      tail_target?: { x: number; y: number };
+    }[];
+  }
   return raw
-    .map((item) => {
+    .map((item, index) => {
       if (typeof item === "string" && item.trim()) {
-        return { speaker: "…", text_ml: item.trim() };
+        return {
+          speaker: "…",
+          text_ml: item.trim(),
+          placement: index % 2 === 0 ? "top-left" : "top-right",
+        };
       }
       if (!item || typeof item !== "object") return null;
       const o = item as Record<string, unknown>;
@@ -63,9 +74,38 @@ function normalizeDialogue(raw: unknown) {
         asString(o.dialogue) ||
         asString(o.caption_ml);
       if (!text_ml) return null;
-      return { speaker, text_ml };
+      const placementRaw = asString(o.placement);
+      const placement = [
+        "top-left",
+        "top-right",
+        "middle-left",
+        "middle-right",
+      ].includes(placementRaw)
+        ? placementRaw
+        : index % 2 === 0
+          ? "top-left"
+          : "top-right";
+      const targetRaw =
+        o.tail_target && typeof o.tail_target === "object"
+          ? (o.tail_target as Record<string, unknown>)
+          : null;
+      const x = Number(targetRaw?.x);
+      const y = Number(targetRaw?.y);
+      const tail_target =
+        Number.isFinite(x) && Number.isFinite(y)
+          ? {
+              x: Math.min(1, Math.max(0, x)),
+              y: Math.min(1, Math.max(0, y)),
+            }
+          : undefined;
+      return { speaker, text_ml, placement, tail_target };
     })
-    .filter(Boolean) as { speaker: string; text_ml: string }[];
+    .filter(Boolean) as {
+    speaker: string;
+    text_ml: string;
+    placement?: string;
+    tail_target?: { x: number; y: number };
+  }[];
 }
 
 function syntheticPanel(i: number, seedCaption: string) {

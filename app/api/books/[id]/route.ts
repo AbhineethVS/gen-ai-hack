@@ -36,3 +36,60 @@ export async function GET(
     return Response.json({ error: message }, { status: 500 });
   }
 }
+
+/** Persist editable comic words for one private/public book panel. */
+export async function PATCH(
+  req: Request,
+  ctx: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await ctx.params;
+    const body = await req.json();
+    const panelIdx = Number(body.panel_idx);
+    if (!id || !Number.isInteger(panelIdx) || panelIdx < 1 || panelIdx > 4) {
+      return Response.json(
+        { error: "book id and panel_idx 1-4 are required" },
+        { status: 400 },
+      );
+    }
+
+    const update: Record<string, unknown> = {};
+    if (typeof body.caption_ml === "string") {
+      update.caption_ml = body.caption_ml.trim().slice(0, 500);
+    }
+    if (typeof body.caption_en === "string") {
+      update.caption_en = body.caption_en.trim().slice(0, 500);
+    }
+    if (Array.isArray(body.dialogue)) {
+      update.dialogue = body.dialogue.slice(0, 3).map(
+        (line: Record<string, unknown>) => ({
+          speaker: String(line.speaker || "").trim().slice(0, 80),
+          text_ml: String(line.text_ml || "").trim().slice(0, 240),
+          placement: String(line.placement || "").trim() || undefined,
+          tail_target:
+            line.tail_target && typeof line.tail_target === "object"
+              ? line.tail_target
+              : undefined,
+        }),
+      );
+    }
+    if (Object.keys(update).length === 0) {
+      return Response.json({ error: "No changes supplied" }, { status: 400 });
+    }
+
+    const supabase = createServiceClient();
+    const { error } = await supabase
+      .from("panels")
+      .update(update)
+      .eq("book_id", id)
+      .eq("idx", panelIdx);
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+    return Response.json({ ok: true });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Update failed";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}

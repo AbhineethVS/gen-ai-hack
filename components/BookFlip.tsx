@@ -1,18 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import SpeechBubble from "@/components/SpeechBubble";
-import type { DialogueLine, UILang } from "@/lib/types";
+import ComicPanel, {
+  type ComicPanelData,
+  type ComicPanelPatch,
+} from "@/components/ComicPanel";
+import type { UILang } from "@/lib/types";
 
-export type FlipPanel = {
-  idx: number;
-  caption_ml?: string | null;
-  caption_en?: string | null;
-  dialogue?: DialogueLine[] | null;
-  image_url?: string | null;
-  text_baked?: boolean | null;
-  error?: string;
-};
+export type FlipPanel = ComicPanelData;
 
 type Props = {
   panels: FlipPanel[];
@@ -25,73 +20,9 @@ type Props = {
   isDemo?: boolean;
   initialPage?: number;
   footer?: ReactNode;
+  editable?: boolean;
+  onPanelChange?: (idx: number, patch: ComicPanelPatch) => void;
 };
-
-function normalizeDialogue(raw: unknown): DialogueLine[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .map((line) => {
-      if (!line || typeof line !== "object") return null;
-      const o = line as Record<string, unknown>;
-      const speaker = String(o.speaker ?? o.name ?? "").trim();
-      const text = String(
-        o.text_ml ?? o.text ?? o.line ?? o.caption_ml ?? "",
-      ).trim();
-      if (!text) return null;
-      return { speaker: speaker || "…", text_ml: text };
-    })
-    .filter(Boolean) as DialogueLine[];
-}
-
-function ComicCard({
-  panel,
-  lang,
-  pageNumber,
-}: {
-  panel?: FlipPanel;
-  lang: UILang;
-  pageNumber: number;
-}) {
-  if (!panel) {
-    return <div className="comic-card comic-card--blank" />;
-  }
-
-  const caption =
-    lang === "en"
-      ? panel.caption_en || panel.caption_ml
-      : panel.caption_ml || panel.caption_en;
-  const textBaked = Boolean(panel.text_baked);
-  const dialogue = textBaked ? [] : normalizeDialogue(panel.dialogue);
-
-  return (
-    <div className="comic-card">
-      {panel.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={panel.image_url} alt="" className="comic-card__img" />
-      ) : (
-        <div className="comic-card__empty">
-          {panel.error || (lang === "en" ? "Drawing..." : "വരയ്ക്കുന്നു...")}
-        </div>
-      )}
-
-      {dialogue.length > 0 ? (
-        <div className="comic-card__bubbles">
-          {dialogue.map((line, i) => (
-            <SpeechBubble
-              key={`${line.speaker}-${i}-${pageNumber}`}
-              speaker={line.speaker}
-              text={line.text_ml}
-              side={i % 2 === 0 ? "left" : "right"}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {caption && !textBaked ? <p className="comic-card__caption">{caption}</p> : null}
-      <span className="comic-card__page">{pageNumber}</span>
-    </div>
-  );
-}
 
 export default function BookFlip({
   panels,
@@ -104,9 +35,12 @@ export default function BookFlip({
   isDemo = false,
   initialPage = 0,
   footer,
+  editable = false,
+  onPanelChange,
 }: Props) {
   const [spread, setSpread] = useState(Math.floor(initialPage / 2) * 2);
   const [fullscreen, setFullscreen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const touchX = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -197,6 +131,22 @@ export default function BookFlip({
               ? "Full screen"
               : "പൂർണ്ണ സ്ക്രീൻ"}
         </button>
+        {editable ? (
+          <button
+            type="button"
+            className={`book-edit-btn ${editing ? "book-edit-btn--on" : ""}`}
+            onClick={() => setEditing((value) => !value)}
+            aria-pressed={editing}
+          >
+            {editing
+              ? lang === "en"
+                ? "Done"
+                : "കഴിഞ്ഞു"
+              : lang === "en"
+                ? "Edit words"
+                : "വാക്കുകൾ മാറ്റുക"}
+          </button>
+        ) : null}
       </header>
 
       <div
@@ -220,10 +170,24 @@ export default function BookFlip({
           <div className="comic-spread__gutter" aria-hidden />
 
           <div className="comic-page comic-page--left">
-            <ComicCard panel={leftPanel} lang={lang} pageNumber={spread + 1} />
+            <ComicPanel
+              panel={leftPanel}
+              lang={lang}
+              pageNumber={spread + 1}
+              editable={editing}
+              onChange={(patch) => onPanelChange?.(leftPanel.idx, patch)}
+            />
           </div>
           <div className="comic-page comic-page--right">
-            <ComicCard panel={rightPanel} lang={lang} pageNumber={spread + 2} />
+            <ComicPanel
+              panel={rightPanel}
+              lang={lang}
+              pageNumber={spread + 2}
+              editable={editing}
+              onChange={(patch) =>
+                rightPanel && onPanelChange?.(rightPanel.idx, patch)
+              }
+            />
           </div>
 
           <button

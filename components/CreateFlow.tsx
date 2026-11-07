@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BookFlip from "@/components/BookFlip";
+import type { ComicPanelPatch } from "@/components/ComicPanel";
 import MicButton from "@/components/MicButton";
 import { formatTimer } from "@/lib/format";
 import { sampleStoryForLang } from "@/lib/sample-story";
@@ -52,13 +53,36 @@ export default function CreateFlow() {
   const timerRef = useRef<number | null>(null);
   const pollStartedAtRef = useRef(0);
   const autoStartedRef = useRef(false);
+  const saveTimersRef = useRef<Record<number, number>>({});
 
   useEffect(() => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
       mediaRecorderRef.current?.stream.getTracks().forEach((t) => t.stop());
+      Object.values(saveTimersRef.current).forEach((timer) =>
+        window.clearTimeout(timer),
+      );
     };
   }, []);
+
+  function updatePanelWords(idx: number, patch: ComicPanelPatch) {
+    setPanels((current) =>
+      current.map((panel) =>
+        panel.idx === idx ? { ...panel, ...patch } : panel,
+      ),
+    );
+    if (!bookId) return;
+    if (saveTimersRef.current[idx]) {
+      window.clearTimeout(saveTimersRef.current[idx]);
+    }
+    saveTimersRef.current[idx] = window.setTimeout(() => {
+      void fetch(`/api/books/${bookId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ panel_idx: idx, ...patch }),
+      });
+    }, 600);
+  }
 
   useEffect(() => {
     if (initialMode === "record" && !autoStartedRef.current && step === "record") {
@@ -564,6 +588,8 @@ export default function CreateFlow() {
             onTitleChange={setTitle}
             showBadges
             initialPage={page}
+            editable
+            onPanelChange={updatePanelWords}
             footer={
               <>
                 {lang === "en"

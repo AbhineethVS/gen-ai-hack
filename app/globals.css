@@ -333,6 +333,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
@@ -388,6 +389,24 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
   padding: 0 0.95rem;
+}
+
+.book-edit-btn {
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid #2a2a2a;
+  background: #141414;
+  color: #f2f2f2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0 0.95rem;
+}
+
+.book-edit-btn--on {
+  border-color: #fff0b8;
+  background: #fff0b8;
+  color: #1d1712;
 }
 
 .open-book {
@@ -670,18 +689,46 @@ body {
 
 .speech-bubble {
   position: relative;
-  width: fit-content;
-  max-width: 90%;
+  z-index: 2;
+  width: 100%;
   border-radius: 1.2rem 1.2rem 1.2rem 0.35rem;
   background: #fffaf0;
   color: #1d1712;
   border: 2px solid #181818;
   padding: 0.42rem 0.7rem 0.52rem;
   box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.24);
+  pointer-events: auto;
 }
 
-.speech-bubble--right {
-  border-radius: 1.2rem 1.2rem 0.35rem 1.2rem;
+.positioned-bubble {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.positioned-bubble .speech-bubble {
+  position: absolute;
+  left: var(--bubble-x);
+  top: var(--bubble-y);
+  width: var(--bubble-w);
+}
+
+.speech-tail {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  overflow: visible;
+}
+
+.speech-tail path {
+  fill: #fffaf0;
+  stroke: #181818;
+  stroke-width: 0.45;
+  stroke-linejoin: round;
 }
 
 .speech-bubble__speaker {
@@ -704,9 +751,24 @@ body {
   color: #1d1712;
 }
 
-.speech-bubble--left::after,
-.speech-bubble--right::after {
-  display: none;
+.speech-bubble__input,
+.narration-box__input {
+  display: block;
+  width: 100%;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  outline: none;
+  overflow: hidden;
+}
+
+.speech-bubble__input {
+  min-height: 1.45rem;
+  font-size: clamp(0.82rem, 1.6vw, 0.96rem);
+  color: #1d1712;
 }
 
 /* Current comic-book reader. Narration lives inside every panel. */
@@ -796,17 +858,7 @@ body {
   color: #888;
 }
 
-.comic-card__bubbles {
-  pointer-events: none;
-  position: absolute;
-  inset: 0.75rem 0.75rem auto;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.comic-card__caption {
+.narration-box {
   position: absolute;
   left: 0.7rem;
   right: 0.7rem;
@@ -825,6 +877,19 @@ body {
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.01em;
+}
+
+.narration-box--editable {
+  cursor: text;
+  outline: 2px solid rgba(255, 240, 184, 0.5);
+  outline-offset: 2px;
+}
+
+.narration-box__input {
+  min-height: 2.4rem;
+  color: #1d1712;
+  font-size: clamp(0.78rem, 1.35vw, 0.92rem);
+  font-weight: 700;
 }
 
 .comic-card__page {

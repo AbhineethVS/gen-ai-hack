@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import BookFlip from "@/components/BookFlip";
+import type { ComicPanelPatch } from "@/components/ComicPanel";
 import type { BookRecord, UILang } from "@/lib/types";
 
 type Props = {
@@ -54,6 +55,24 @@ export default function BookReader({ bookId }: Props) {
   const title =
     lang === "en" ? book.title_en || book.title_ml : book.title_ml;
 
+  function updatePanel(idx: number, patch: ComicPanelPatch) {
+    setBook((current) =>
+      current
+        ? {
+            ...current,
+            panels: current.panels.map((panel) =>
+              panel.idx === idx ? { ...panel, ...patch } : panel,
+            ),
+          }
+        : current,
+    );
+    void fetch(`/api/books/${bookId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ panel_idx: idx, ...patch }),
+    });
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-5 py-8">
       <div className="flex justify-end gap-2">
@@ -88,6 +107,8 @@ export default function BookReader({ bookId }: Props) {
         narratorLabel={book.narrator_label}
         showBadges
         isDemo={book.is_demo}
+        editable={!book.is_public}
+        onPanelChange={updatePanel}
       />
     </div>
   );

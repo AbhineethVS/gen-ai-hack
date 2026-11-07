@@ -77,7 +77,19 @@ export async function POST(req: Request) {
             const speaker = String(o.speaker ?? "").trim();
             const text = String(o.text ?? o.text_ml ?? "").trim();
             if (!text) return null;
-            return { speaker, text };
+            const target =
+              o.tail_target && typeof o.tail_target === "object"
+                ? (o.tail_target as Record<string, unknown>)
+                : null;
+            const x = Number(target?.x);
+            const y = Number(target?.y);
+            return {
+              speaker,
+              text,
+              placement: String(o.placement ?? "").trim(),
+              tailTarget:
+                Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined,
+            };
           })
           .filter(Boolean)
       : [];
@@ -115,7 +127,12 @@ export async function POST(req: Request) {
       withStyleRefs,
       bakeText,
       captionText,
-      dialogueLines: dialogueLines as { speaker?: string; text?: string }[],
+      dialogueLines: dialogueLines as {
+        speaker?: string;
+        text?: string;
+        placement?: string;
+        tailTarget?: { x: number; y: number };
+      }[],
     });
 
     let imageRes = withStyleRefs
@@ -132,7 +149,12 @@ export async function POST(req: Request) {
         withStyleRefs: false,
         bakeText,
         captionText,
-        dialogueLines: dialogueLines as { speaker?: string; text?: string }[],
+        dialogueLines: dialogueLines as {
+          speaker?: string;
+          text?: string;
+          placement?: string;
+          tailTarget?: { x: number; y: number };
+        }[],
       }) });
       imageData = await imageRes.json().catch(() => ({}));
     }
