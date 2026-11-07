@@ -1,3 +1,4 @@
+import { normalizeStory } from "@/lib/normalize-story";
 import { SAMPLE_STORY_JSON } from "@/lib/sample-story";
 
 
@@ -13,7 +14,10 @@ export async function POST(req: Request) {
     const hardcoded = Boolean(body.hardcoded);
 
     if (hardcoded || process.env.DEMO_MODE === "true") {
-      return Response.json({ story: SAMPLE_STORY_JSON, source: "hardcoded" });
+      return Response.json({
+        story: normalizeStory(SAMPLE_STORY_JSON),
+        source: "hardcoded",
+      });
     }
 
     if (!text) {
@@ -23,9 +27,10 @@ export async function POST(req: Request) {
     const apiKey = process.env.OPENAI_API_KEY;
     const model = process.env.LLM_MODEL;
     if (!apiKey || !model) {
-      return Response.json(
-        { story: SAMPLE_STORY_JSON, source: "hardcoded_fallback" },
-      );
+      return Response.json({
+        story: normalizeStory(SAMPLE_STORY_JSON),
+        source: "hardcoded_fallback",
+      });
     }
 
     const system = `You are a children's picture-book editor in Kerala. A grandparent has told you a
@@ -76,7 +81,7 @@ Return ONLY valid JSON matching the schema.`;
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return Response.json({
-        story: SAMPLE_STORY_JSON,
+        story: normalizeStory(SAMPLE_STORY_JSON),
         source: "hardcoded_fallback",
         error: data?.error?.message || `LLM failed (${res.status})`,
       });
@@ -84,11 +89,11 @@ Return ONLY valid JSON matching the schema.`;
 
     const content = data.choices?.[0]?.message?.content;
     try {
-      const story = JSON.parse(content);
+      const story = normalizeStory(JSON.parse(content));
       return Response.json({ story, source: "llm" });
     } catch {
       return Response.json({
-        story: SAMPLE_STORY_JSON,
+        story: normalizeStory(SAMPLE_STORY_JSON),
         source: "hardcoded_fallback",
         error: "Invalid JSON from LLM",
       });
@@ -96,7 +101,11 @@ Return ONLY valid JSON matching the schema.`;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Story failed";
     return Response.json(
-      { story: SAMPLE_STORY_JSON, source: "hardcoded_fallback", error: message },
+      {
+        story: normalizeStory(SAMPLE_STORY_JSON),
+        source: "hardcoded_fallback",
+        error: message,
+      },
       { status: 200 },
     );
   }

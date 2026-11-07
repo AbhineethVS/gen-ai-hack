@@ -209,15 +209,41 @@ export default function RiskTest() {
         return;
       }
 
-      const firstThree = story.panels.slice(0, 3) as Array<{
-        idx: number;
-        scene_description: string;
-        caption_ml: string;
-        caption_en?: string;
-      }>;
+      const characterDescription =
+        story.character_sheet?.description ||
+        story.character_sheet?.visual ||
+        (typeof story.character_sheet === "string" ? story.character_sheet : "") ||
+        "";
+
+      const firstThree = story.panels.slice(0, 3).map(
+        (
+          p: {
+            idx?: number;
+            scene_description?: string;
+            scene?: string;
+            caption_ml?: string;
+            caption_en?: string;
+            caption?: string;
+          },
+          i: number,
+        ) => ({
+          idx: Number(p.idx ?? i + 1) || i + 1,
+          scene_description:
+            p.scene_description ||
+            p.scene ||
+            `Children's picture-book scene in Kerala for: ${p.caption_en || p.caption_ml || p.caption || "a warm moment"}. Empty space near the top. No text.`,
+          caption_ml: p.caption_ml || p.caption || "",
+          caption_en: p.caption_en || p.caption_ml || p.caption || "",
+        }),
+      );
+
+      if (!characterDescription) {
+        setError("Story missing character details — try again");
+        return;
+      }
 
       setPanels(
-        firstThree.map((p) => ({
+        firstThree.map((p: (typeof firstThree)[number]) => ({
           idx: p.idx,
           caption_ml: p.caption_ml,
           caption_en: p.caption_en,
@@ -226,7 +252,7 @@ export default function RiskTest() {
       setStatus(lang === "en" ? "Drawing panels…" : "ചിത്രങ്ങൾ വരയ്ക്കുന്നു…");
 
       await Promise.all(
-        firstThree.map(async (panel) => {
+        firstThree.map(async (panel: (typeof firstThree)[number]) => {
           try {
             const res = await fetch("/api/panel", {
               method: "POST",
@@ -234,7 +260,7 @@ export default function RiskTest() {
               body: JSON.stringify({
                 book_id: "risk",
                 idx: panel.idx,
-                character_description: story.character_sheet.description,
+                character_description: characterDescription,
                 scene_description: panel.scene_description,
               }),
             });

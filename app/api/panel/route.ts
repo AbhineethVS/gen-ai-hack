@@ -5,14 +5,25 @@ import { buildPanelPrompt } from "@/lib/prompts";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const characterDescription = String(body.character_description ?? "");
-    const sceneDescription = String(body.scene_description ?? "");
-    const idx = Number(body.idx ?? 0);
+    const characterDescription = String(
+      body.character_description ?? body.characterDescription ?? "",
+    ).trim();
+    const sceneDescription = String(
+      body.scene_description ?? body.sceneDescription ?? body.scene ?? "",
+    ).trim();
+    const idx = Number(body.idx ?? body.index ?? 0);
     const bookId = String(body.book_id ?? "risk");
 
-    if (!characterDescription || !sceneDescription || !idx) {
+    if (!characterDescription || !sceneDescription || !Number.isFinite(idx) || idx < 1) {
       return Response.json(
-        { error: "character_description, scene_description, and idx are required" },
+        {
+          error: "character_description, scene_description, and idx are required",
+          received: {
+            character_description: Boolean(characterDescription),
+            scene_description: Boolean(sceneDescription),
+            idx,
+          },
+        },
         { status: 400 },
       );
     }
