@@ -10,18 +10,14 @@ export default function SpeechBubble({ speaker, text, side = "left" }: Props) {
 
   return (
     <div
-      className={`speech-bubble max-w-[78%] ${
+      className={`speech-bubble speech-bubble--${side} max-w-[82%] ${
         side === "right" ? "ml-auto" : "mr-auto"
       }`}
     >
       {speaker ? (
-        <span className="mb-0.5 block text-[0.65rem] font-semibold tracking-wide text-[var(--ink-soft)]">
-          {speaker}
-        </span>
+        <span className="speech-bubble__speaker">{speaker}</span>
       ) : null}
-      <p className="text-[0.95rem] leading-snug text-[var(--ink)] sm:text-base">
-        {text}
-      </p>
+      <p className="speech-bubble__text">{text}</p>
     </div>
   );
 }

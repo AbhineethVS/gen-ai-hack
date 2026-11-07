@@ -45,6 +45,29 @@ function sceneDescription(panel: LoosePanel, fallbackCaption: string): string {
   );
 }
 
+function normalizeDialogue(raw: unknown) {
+  if (!Array.isArray(raw)) return [] as { speaker: string; text_ml: string }[];
+  return raw
+    .map((item) => {
+      if (typeof item === "string" && item.trim()) {
+        return { speaker: "…", text_ml: item.trim() };
+      }
+      if (!item || typeof item !== "object") return null;
+      const o = item as Record<string, unknown>;
+      const speaker =
+        asString(o.speaker) || asString(o.name) || asString(o.character) || "…";
+      const text_ml =
+        asString(o.text_ml) ||
+        asString(o.text) ||
+        asString(o.line) ||
+        asString(o.dialogue) ||
+        asString(o.caption_ml);
+      if (!text_ml) return null;
+      return { speaker, text_ml };
+    })
+    .filter(Boolean) as { speaker: string; text_ml: string }[];
+}
+
 function syntheticPanel(i: number, seedCaption: string) {
   const caption =
     seedCaption ||
@@ -54,7 +77,7 @@ function syntheticPanel(i: number, seedCaption: string) {
     scene_description: `Indian children's comic illustration for: ${caption}. Empty space near the top. No text.`,
     caption_ml: caption,
     caption_en: caption,
-    dialogue: [] as unknown[],
+    dialogue: [] as { speaker: string; text_ml: string }[],
   };
 }
 
@@ -102,7 +125,7 @@ export function normalizeStory(raw: unknown) {
         scene_description: sceneDescription(p, caption),
         caption_ml: caption_ml || caption_en || `${titleHint} — part ${i + 1}`,
         caption_en: caption_en || caption_ml || `${titleHint} — part ${i + 1}`,
-        dialogue: Array.isArray(p.dialogue) ? p.dialogue : [],
+        dialogue: normalizeDialogue(p.dialogue ?? p.dialogs ?? p.speech ?? p.bubbles),
       };
     },
   );

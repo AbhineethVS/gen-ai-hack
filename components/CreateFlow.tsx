@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import BookFlip from "@/components/BookFlip";
 import MicButton from "@/components/MicButton";
-import SpeechBubble from "@/components/SpeechBubble";
 import { formatTimer } from "@/lib/format";
 import { sampleStoryForLang } from "@/lib/sample-story";
-import type { DialogueLine, StoryPanel, UILang } from "@/lib/types";
+import type { StoryPanel, UILang } from "@/lib/types";
 
 type Step = "record" | "type" | "review" | "generating" | "preview";
 
@@ -342,12 +342,6 @@ export default function CreateFlow() {
     }
   }
 
-  const current = panels[page];
-  const caption =
-    lang === "en"
-      ? current?.caption_en || current?.caption_ml
-      : current?.caption_ml || current?.caption_en;
-
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-8 sm:py-12">
       <header className="mb-8 flex items-start justify-between gap-4">
@@ -517,84 +511,36 @@ export default function CreateFlow() {
         </section>
       )}
 
-      {step === "preview" && current && (
+      {step === "preview" && panels.length > 0 && (
         <section className="flex flex-1 flex-col gap-5">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border-0 bg-transparent font-display text-3xl font-semibold text-[var(--ink)] outline-none sm:text-4xl"
-            aria-label={lang === "en" ? "Book title" : "പുസ്തകത്തിന്റെ പേര്"}
-          />
-
-          <div className="relative overflow-hidden rounded-3xl bg-[var(--wash)] ring-1 ring-[var(--line)]">
-            <div className="relative aspect-square w-full">
-              {current.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={current.image_url}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-[var(--ink-soft)]">
-                  {current.error || "…"}
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-x-3 top-3 flex flex-col gap-2 sm:inset-x-5 sm:top-5">
-                {(current.dialogue as DialogueLine[] | undefined)?.map((line, i) => (
-                  <SpeechBubble
-                    key={`${line.speaker}-${i}`}
-                    speaker={line.speaker}
-                    text={line.text_ml}
-                    side={i % 2 === 0 ? "left" : "right"}
-                  />
-                ))}
-              </div>
-            </div>
-            <p className="border-t border-[var(--line)] p-5 text-lg leading-relaxed text-[var(--ink)] sm:text-xl">
-              {caption}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              disabled={page <= 0}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="min-h-14 min-w-28 rounded-2xl bg-[var(--wash)] px-5 text-lg font-medium text-[var(--ink)] ring-1 ring-[var(--line)] disabled:opacity-40"
-            >
-              {lang === "en" ? "Back" : "പിന്നോട്ട്"}
-            </button>
-            <p className="text-base text-[var(--ink-soft)]">
-              {page + 1} / {panels.length}
-            </p>
-            <button
-              type="button"
-              disabled={page >= panels.length - 1}
-              onClick={() => setPage((p) => Math.min(panels.length - 1, p + 1))}
-              className="min-h-14 min-w-28 rounded-2xl bg-[#f2f2f2] px-5 text-lg font-medium text-[#0a0a0a] disabled:opacity-40"
-            >
-              {lang === "en" ? "Next" : "അടുത്തത്"}
-            </button>
-          </div>
-
-          <p className="text-center text-sm text-[var(--ink-soft)]">
-            {lang === "en"
-              ? "Edit & share come next. Your book is saved."
-              : "തിരുത്തലും പങ്കിടലും അടുത്തതാണ്. പുസ്തകം സേവ് ചെയ്തു."}
-            {bookId ? (
+          <BookFlip
+            panels={panels}
+            lang={lang}
+            title={title}
+            titleEditable
+            onTitleChange={setTitle}
+            showBadges
+            initialPage={page}
+            footer={
               <>
-                {" "}
-                <button
-                  type="button"
-                  className="underline underline-offset-2"
-                  onClick={() => router.push(`/book/${bookId}`)}
-                >
-                  {lang === "en" ? "Open book link" : "പുസ്തക ലിങ്ക്"}
-                </button>
+                {lang === "en"
+                  ? "Edit & share come next. Your book is saved."
+                  : "തിരുത്തലും പങ്കിടലും അടുത്തതാണ്. പുസ്തകം സേവ് ചെയ്തു."}
+                {bookId ? (
+                  <>
+                    {" "}
+                    <button
+                      type="button"
+                      className="underline underline-offset-2"
+                      onClick={() => router.push(`/book/${bookId}`)}
+                    >
+                      {lang === "en" ? "Open book link" : "പുസ്തക ലിങ്ക്"}
+                    </button>
+                  </>
+                ) : null}
               </>
-            ) : null}
-          </p>
+            }
+          />
         </section>
       )}
     </div>
