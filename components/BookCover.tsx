@@ -1,5 +1,8 @@
 "use client";
 
+import type { CSSProperties } from "react";
+import type { CoverDirection } from "@/lib/types";
+
 type Props = {
   title: string;
   subtitle?: string | null;
@@ -10,6 +13,8 @@ type Props = {
   compact?: boolean;
   editable?: boolean;
   onTitleChange?: (title: string) => void;
+  direction?: CoverDirection | null;
+  building?: boolean;
 };
 
 export default function BookCover({
@@ -22,9 +27,26 @@ export default function BookCover({
   compact = false,
   editable = false,
   onTitleChange,
+  direction,
+  building = false,
 }: Props) {
+  const palette = direction?.palette?.length
+    ? direction.palette
+    : ["#E8A24A", "#315B52", "#F5E8C8", "#7A302B"];
+  const style = {
+    "--cover-accent": palette[0],
+    "--cover-deep": palette[1] || "#315B52",
+    "--cover-paper": palette[2] || "#F5E8C8",
+  } as CSSProperties;
+  const titleZone = direction?.title_zone === "top" ? "top" : "bottom";
+
   return (
-    <div className={`book-cover ${compact ? "book-cover--compact" : ""}`}>
+    <div
+      className={`book-cover book-cover--title-${titleZone} ${
+        compact ? "book-cover--compact" : ""
+      } ${building ? "book-cover--building" : ""}`}
+      style={style}
+    >
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt="" className="book-cover__image" />
@@ -34,11 +56,9 @@ export default function BookCover({
       <div className="book-cover__shade" aria-hidden />
       <div className="book-cover__top">
         <span className="book-cover__brand">മുത്തശ്ശി കഥ</span>
-        <div className="book-cover__badges">
-          {isNew ? <span>New</span> : null}
-          <span>AI-illustrated</span>
-          {isDemo ? <span>Demo story</span> : null}
-        </div>
+        <span className="book-cover__edition" aria-hidden>
+          {isNew ? "NEW STORY" : isDemo ? "STORY EDITION" : "ORIGINAL"}
+        </span>
       </div>
       <div className="book-cover__content">
         {editable ? (
@@ -58,6 +78,7 @@ export default function BookCover({
           Told by {narratorLabel || "മുത്തശ്ശി"}
         </p>
       </div>
+      <span className="book-cover__rule" aria-hidden />
     </div>
   );
 }

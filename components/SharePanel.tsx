@@ -2,15 +2,26 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { UILang } from "@/lib/types";
+import BookCover from "@/components/BookCover";
+import type { CoverDirection, UILang } from "@/lib/types";
 
 type Props = {
   bookId: string;
   lang: UILang;
   onPublished?: (url: string) => void;
+  coverUrl?: string | null;
+  coverDirection?: CoverDirection | null;
+  title?: string;
 };
 
-export default function SharePanel({ bookId, lang, onPublished }: Props) {
+export default function SharePanel({
+  bookId,
+  lang,
+  onPublished,
+  coverUrl,
+  coverDirection,
+  title = "",
+}: Props) {
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +62,16 @@ export default function SharePanel({ bookId, lang, onPublished }: Props) {
             : "കുട്ടികൾക്ക് ഇപ്പോൾ നിങ്ങളുടെ കഥ വായിക്കാം."}
         </h2>
         <div className="share-success">
+          {coverUrl ? (
+            <div className="share-success__cover">
+              <BookCover
+                title={title}
+                imageUrl={coverUrl}
+                direction={coverDirection}
+                compact
+              />
+            </div>
+          ) : null}
           <div className="share-success__qr">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

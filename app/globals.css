@@ -309,6 +309,218 @@ body {
   line-height: 1.28;
 }
 
+.cover-studio {
+  display: grid;
+  min-height: 34rem;
+  overflow: hidden;
+  border: 1px solid #2c2c2c;
+  border-radius: 1.35rem;
+  background: #0d0d0d;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 21rem);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.cover-studio__canvas {
+  display: grid;
+  place-items: center;
+  min-height: 34rem;
+  padding: 2.2rem 3.5rem;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 50% 46%, #242424, #111 58%);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.cover-studio__artboard {
+  position: relative;
+  width: min(100%, 18rem);
+}
+
+.cover-studio__artboard .book-cover {
+  width: 100%;
+  box-shadow:
+    -5px 7px 0 #050505,
+    0 22px 55px rgba(0, 0, 0, 0.7);
+}
+
+.cover-studio__panel {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #2a2a2a;
+  background: #121212;
+  padding: 1.7rem 1.5rem;
+}
+
+.cover-studio__eyebrow {
+  margin: 0 0 0.7rem;
+  color: #88c8ad;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cover-studio__panel h2 {
+  margin: 0;
+  color: #f3f3f3;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.12;
+}
+
+.cover-studio__concept {
+  margin: 0.85rem 0 1.3rem;
+  color: #999;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.cover-studio__roles {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cover-role {
+  display: grid;
+  min-height: 2.35rem;
+  align-items: center;
+  border: 1px solid #262626;
+  border-radius: 0.7rem;
+  color: #666;
+  font-size: 0.77rem;
+  font-weight: 700;
+  grid-template-columns: 0.55rem 1fr auto;
+  gap: 0.6rem;
+  padding: 0 0.65rem;
+  transition: 0.35s ease;
+}
+
+.cover-role small {
+  color: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.cover-role__dot {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 999px;
+  background: #3b3b3b;
+}
+
+.cover-role--active {
+  border-color: #4b6559;
+  color: #d9ece3;
+  background: #142019;
+}
+
+.cover-role--active .cover-role__dot {
+  background: #88c8ad;
+  box-shadow: 0 0 0.8rem rgba(136, 200, 173, 0.65);
+  animation: role-pulse 1.3s ease-in-out infinite;
+}
+
+.cover-role--done {
+  color: #aaa;
+}
+
+.cover-role--done .cover-role__dot {
+  background: #f0d486;
+}
+
+.cover-studio__palette {
+  display: flex;
+  gap: 0.42rem;
+  margin-top: auto;
+  padding-top: 1.35rem;
+}
+
+.cover-studio__palette span {
+  height: 1.5rem;
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+}
+
+.cover-studio__note {
+  margin: 0.75rem 0 0;
+  color: #777;
+  font-size: 0.72rem;
+}
+
+.cover-cursor {
+  position: absolute;
+  z-index: 8;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.15rem;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.75));
+}
+
+.cover-cursor svg {
+  width: 1rem;
+  fill: #f5f5f5;
+  stroke: #080808;
+  stroke-width: 1.4px;
+}
+
+.cover-cursor b {
+  border-radius: 0.25rem 0.5rem 0.5rem 0.5rem;
+  background: #f5f5f5;
+  color: #0b0b0b;
+  font-size: 0.56rem;
+  line-height: 1;
+  padding: 0.34rem 0.42rem;
+  white-space: nowrap;
+}
+
+.cover-cursor--active {
+  animation: cursor-work 2.8s ease-in-out infinite alternate;
+}
+
+.cover-cursor--done {
+  opacity: 0.42;
+}
+
+.cover-cursor--director {
+  top: 7%;
+  left: -17%;
+}
+
+.cover-cursor--illustrator {
+  top: 36%;
+  right: -22%;
+}
+
+.cover-cursor--letterer {
+  bottom: 24%;
+  left: -18%;
+}
+
+.cover-cursor--editor {
+  right: -16%;
+  bottom: 5%;
+}
+
+@keyframes cursor-work {
+  from {
+    transform: translate3d(-4px, -3px, 0);
+  }
+  to {
+    transform: translate3d(13px, 9px, 0);
+  }
+}
+
+@keyframes role-pulse {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.78);
+  }
+}
+
 /* —— Book reader (open spread) —— */
 .book-flip {
   display: flex;
@@ -409,7 +621,7 @@ body {
   color: #1d1712;
 }
 
-/* Designed front cover, reused in reader and library. */
+/* Dedicated portrait cover art with selectable HTML lettering. */
 .book-cover-stage {
   display: flex;
   min-height: min(70vh, 42rem);
@@ -422,15 +634,16 @@ body {
 
 .book-cover {
   position: relative;
-  width: min(100%, 30rem);
-  aspect-ratio: 3 / 4;
+  width: min(100%, 28rem);
+  aspect-ratio: 2 / 3;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 0.45rem 1rem 1rem 0.45rem;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.35rem 0.8rem 0.8rem 0.35rem;
   background: #171717;
   box-shadow:
-    -8px 10px 0 #070707,
-    -12px 16px 30px rgba(0, 0, 0, 0.6);
+    -7px 8px 0 #080808,
+    0 28px 58px rgba(0, 0, 0, 0.62);
 }
 
 .book-cover::after {
@@ -440,8 +653,12 @@ body {
   inset-block: 0;
   left: 0;
   z-index: 4;
-  width: 0.65rem;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.08));
+  width: 0.55rem;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.72),
+    rgba(255, 255, 255, 0.09)
+  );
 }
 
 .book-cover__image,
@@ -454,16 +671,33 @@ body {
 }
 
 .book-cover__empty {
-  background: linear-gradient(145deg, #44352a, #16100d);
+  background:
+    radial-gradient(circle at 50% 42%, var(--cover-accent), transparent 6%),
+    radial-gradient(circle at 50% 42%, var(--cover-deep), transparent 42%),
+    linear-gradient(145deg, #151515, #050505);
+}
+
+.book-cover--building .book-cover__empty {
+  animation: cover-breathe 3.4s ease-in-out infinite alternate;
 }
 
 .book-cover__shade {
   pointer-events: none;
   position: absolute;
   inset: 0;
+  z-index: 1;
+}
+
+.book-cover--title-bottom .book-cover__shade {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.38), transparent 34%),
-    linear-gradient(0deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.06) 66%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.36), transparent 28%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.94), transparent 59%);
+}
+
+.book-cover--title-top .book-cover__shade {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.94), transparent 48%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.38), transparent 24%);
 }
 
 .book-cover__top {
@@ -474,6 +708,8 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.7rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.38);
 }
 
 .book-cover__brand {
@@ -483,28 +719,21 @@ body {
   letter-spacing: 0.08em;
 }
 
-.book-cover__badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.3rem;
-}
-
-.book-cover__badges span {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  background: rgba(5, 5, 5, 0.68);
-  color: #fff;
-  font-size: 0.58rem;
+.book-cover__edition {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.55rem;
   font-weight: 700;
-  padding: 0.25rem 0.48rem;
-  backdrop-filter: blur(5px);
+  letter-spacing: 0.15em;
 }
 
 .book-cover__content {
   position: absolute;
   inset: auto 1.4rem 1.4rem 1.65rem;
   z-index: 2;
+}
+
+.book-cover--title-top .book-cover__content {
+  inset: 4.8rem 1.4rem auto 1.65rem;
 }
 
 .book-cover__title,
@@ -515,12 +744,15 @@ body {
   background: transparent;
   color: #fff;
   font-family: var(--font-display), "Fraunces", Georgia, serif;
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  font-weight: 650;
-  line-height: 1.08;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.15rem, 6vw, 3.55rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
   outline: none;
-  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.7);
+  text-wrap: balance;
+  text-shadow:
+    0 2px 2px rgba(0, 0, 0, 0.82),
+    0 5px 24px rgba(0, 0, 0, 0.72);
 }
 
 .book-cover__title-input {
@@ -535,16 +767,32 @@ body {
 }
 
 .book-cover__credit {
-  margin: 1rem 0 0;
-  color: #fff0b8;
+  margin: 1.05rem 0 0;
+  color: var(--cover-paper);
   font-size: 0.82rem;
   font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.book-cover__rule {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  width: 36%;
+  height: 0.34rem;
+  background: var(--cover-accent);
+}
+
+.book-cover--title-top .book-cover__rule {
+  top: 0;
+  bottom: auto;
 }
 
 .book-cover--compact {
   width: 100%;
   height: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 2 / 3;
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -556,6 +804,7 @@ body {
 
 .book-cover--compact .book-cover__top {
   inset: 0.65rem 0.6rem auto 0.85rem;
+  padding-bottom: 0.42rem;
 }
 
 .book-cover--compact .book-cover__brand {
@@ -566,13 +815,28 @@ body {
   inset: auto 0.85rem 0.85rem 1rem;
 }
 
+.book-cover--compact.book-cover--title-top .book-cover__content {
+  inset: 3.6rem 0.85rem auto 1rem;
+}
+
 .book-cover--compact .book-cover__title {
-  font-size: clamp(1.45rem, 8vw, 2.2rem);
+  font-size: clamp(1.3rem, 5vw, 2rem);
 }
 
 .book-cover--compact .book-cover__credit {
   margin-top: 0.55rem;
   font-size: 0.7rem;
+}
+
+@keyframes cover-breathe {
+  from {
+    filter: saturate(0.78) brightness(0.78);
+    transform: scale(1);
+  }
+  to {
+    filter: saturate(1.15) brightness(1.05);
+    transform: scale(1.035);
+  }
 }
 
 .open-book {
@@ -1234,6 +1498,20 @@ body {
   background: #fffaf0;
 }
 
+.share-success__cover {
+  width: 7.2rem;
+  flex: 0 0 7.2rem;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.42);
+}
+
+.share-success__cover .book-cover__subtitle,
+.share-success__cover .book-cover__credit,
+.share-success__cover .book-cover__edition {
+  display: none;
+}
+
 .share-success__qr img {
   display: block;
   width: 100%;
@@ -1306,7 +1584,7 @@ body {
 
 .library-card__cover {
   position: relative;
-  aspect-ratio: 1;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   background: #171717;
 }
@@ -1392,6 +1670,24 @@ body {
 }
 
 @media (max-width: 820px) {
+  .cover-studio {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-studio__canvas {
+    min-height: 31rem;
+    padding: 2rem 3rem;
+  }
+
+  .cover-studio__panel {
+    border-top: 1px solid #2a2a2a;
+    border-left: 0;
+  }
+
+  .cover-studio__palette {
+    margin-top: 0;
+  }
+
   .open-book__spread {
     grid-template-columns: 1fr;
     min-height: 0;
@@ -1490,6 +1786,9 @@ body {
   .mic-pulse,
   .panel-reveal,
   .gen-card__shimmer,
+  .book-cover--building .book-cover__empty,
+  .cover-cursor,
+  .cover-role__dot,
   .library-card--loading,
   .turn-leaf--next,
   .turn-leaf--prev,

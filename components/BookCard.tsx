@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BookCover from "@/components/BookCover";
+import type { CoverDirection } from "@/lib/types";
 
 export type LibraryBook = {
   id: string;
@@ -9,13 +10,11 @@ export type LibraryBook = {
   is_demo: boolean;
   created_at: string;
   cover_url?: string | null;
+  cover_direction?: CoverDirection | null;
+  is_new?: boolean;
 };
 
 export default function BookCard({ book }: { book: LibraryBook }) {
-  const isNew =
-    !book.is_demo &&
-    Date.now() - new Date(book.created_at).getTime() < 24 * 60 * 60 * 1000;
-
   return (
     <Link href={`/book/${book.id}`} className="library-card">
       <div className="library-card__cover">
@@ -24,8 +23,9 @@ export default function BookCard({ book }: { book: LibraryBook }) {
           subtitle={book.title_en}
           narratorLabel={book.narrator_label}
           imageUrl={book.cover_url}
+          direction={book.cover_direction}
           isDemo={book.is_demo}
-          isNew={isNew}
+          isNew={book.is_new}
           compact
         />
       </div>

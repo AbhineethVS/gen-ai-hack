@@ -61,8 +61,18 @@ Rules:
   or lettering. Mention where speaking characters stand so the image composition
   agrees with tail_target. Preserve some natural negative space in the requested
   bubble zones and keep the bottom quarter visually calm for narration.
+- Create "cover_direction" for a SEPARATE portrait cover illustration. It must be
+  symbolic key art, not a copy of panel 1. Return:
+  {concept, illustration_prompt, focal_point, title_zone, palette}.
+  illustration_prompt is a vivid English visual prompt with one strong focal idea,
+  expressive characters, depth, and no text, letters, captions, bubbles, logos, or
+  watermarks. focal_point describes where the key subject sits. title_zone must be
+  either "top" or "bottom" and must identify genuinely calm negative space for our
+  HTML title. palette is 3-5 harmonious hex colours. Keep the character identity
+  from character_sheet but allow a more iconic, cinematic cover composition.
 
-Return ONLY valid JSON with keys: title_ml, title_en, character_sheet, panels (exactly 4), safety.`;
+Return ONLY valid JSON with keys: title_ml, title_en, character_sheet,
+cover_direction, panels (exactly 4), safety.`;
 
     // gpt-6-astra (and some reasoning models) reject custom temperature — omit it
     const res = await fetch("https://api.openai.com/v1/chat/completions", {

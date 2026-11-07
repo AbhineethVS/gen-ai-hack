@@ -108,6 +108,37 @@ function normalizeDialogue(raw: unknown) {
   }[];
 }
 
+function normalizeCoverDirection(raw: unknown, titleHint: string) {
+  const cover =
+    raw && typeof raw === "object"
+      ? (raw as Record<string, unknown>)
+      : {};
+  const palette = Array.isArray(cover.palette)
+    ? cover.palette
+        .map(asString)
+        .filter((color) => /^#[0-9a-f]{6}$/i.test(color))
+        .slice(0, 5)
+    : [];
+  const concept =
+    asString(cover.concept) ||
+    `A single symbolic key-art moment that captures the heart of ${titleHint}`;
+
+  return {
+    concept,
+    illustration_prompt:
+      asString(cover.illustration_prompt) ||
+      asString(cover.image_prompt) ||
+      `${concept}. A cinematic portrait children's comic cover with one clear focal subject.`,
+    focal_point:
+      asString(cover.focal_point) || "Main character in the centre-lower area",
+    title_zone: asString(cover.title_zone) === "top" ? "top" : "bottom",
+    palette:
+      palette.length >= 2
+        ? palette
+        : ["#E8A24A", "#315B52", "#F5E8C8", "#7A302B"],
+  };
+}
+
 function syntheticPanel(i: number, seedCaption: string) {
   const caption =
     seedCaption ||
@@ -178,6 +209,10 @@ export function normalizeStory(raw: unknown) {
     title_ml: asString(story.title_ml) || asString(story.title_en) || titleHint,
     title_en: asString(story.title_en) || asString(story.title_ml) || titleHint,
     character_sheet: { name, description },
+    cover_direction: normalizeCoverDirection(
+      story.cover_direction ?? story.coverDirection ?? story.cover,
+      titleHint,
+    ),
     panels,
     safety:
       story.safety && typeof story.safety === "object"

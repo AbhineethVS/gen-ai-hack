@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BookFlip from "@/components/BookFlip";
 import type { ComicPanelPatch } from "@/components/ComicPanel";
+import CoverStudio from "@/components/CoverStudio";
 import MicButton from "@/components/MicButton";
 import SharePanel from "@/components/SharePanel";
 import { formatTimer } from "@/lib/format";
 import { sampleStoryForLang } from "@/lib/sample-story";
-import type { StoryPanel, UILang } from "@/lib/types";
+import type { CoverDirection, StoryPanel, UILang } from "@/lib/types";
 
 type Step = "record" | "type" | "review" | "generating" | "preview";
 
@@ -47,6 +48,10 @@ export default function CreateFlow() {
   const [subtitle, setSubtitle] = useState("");
   const [bookId, setBookId] = useState<string | null>(null);
   const [panels, setPanels] = useState<LivePanel[]>([]);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverDirection, setCoverDirection] =
+    useState<CoverDirection | null>(null);
+  const [coverFailed, setCoverFailed] = useState(false);
   const [page, setPage] = useState(0);
   const [characterDescription, setCharacterDescription] = useState("");
   const [redrawingIdx, setRedrawingIdx] = useState<number | null>(null);
@@ -314,6 +319,9 @@ export default function CreateFlow() {
     setBusy(true);
     setError("");
     setPanels([]);
+    setCoverUrl(null);
+    setCoverDirection(null);
+    setCoverFailed(false);
     setPage(0);
     setBookId(null);
     setStep("generating");
@@ -343,6 +351,7 @@ export default function CreateFlow() {
 
       const characterDescription = characterDescriptionFrom(story.character_sheet);
       setCharacterDescription(characterDescription);
+      setCoverDirection(story.cover_direction || null);
       const storyPanels: LivePanel[] = story.panels.slice(0, 4).map(
         (p: StoryPanel, i: number) => ({
           idx: Number(p.idx ?? i + 1) || i + 1,
@@ -371,6 +380,7 @@ export default function CreateFlow() {
           title_en: story.title_en,
           original_text: text,
           character_sheet: story.character_sheet,
+          cover_direction: story.cover_direction,
           panels: storyPanels,
         }),
       });
@@ -382,8 +392,30 @@ export default function CreateFlow() {
       }
       setBookId(bookData.id);
 
-      await Promise.all(
-        storyPanels.map(async (panel) => {
+      const coverPromise = (async () => {
+        try {
+          const res = await fetch("/api/cover", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              book_id: bookData.id,
+              character_description: characterDescription,
+              cover_direction: story.cover_direction,
+              use_style_refs: true,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.cover_url) {
+            setCoverFailed(true);
+            return;
+          }
+          setCoverUrl(data.cover_url);
+        } catch {
+          setCoverFailed(true);
+        }
+      })();
+
+      const panelPromises = storyPanels.map(async (panel) => {
           setStatus(
             lang === "en"
               ? `Drawing page ${panel.idx}/4…`
@@ -432,8 +464,9 @@ export default function CreateFlow() {
               ),
             );
           }
-        }),
-      );
+        });
+
+      await Promise.all([...panelPromises, coverPromise]);
 
       setStatus("");
       setStep("preview");
@@ -574,43 +607,45 @@ export default function CreateFlow() {
 
       {step === "generating" && (
         <section className="flex flex-1 flex-col gap-6">
-          <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
-            <div>
-              <h1 className="font-display text-3xl font-semibold text-[var(--ink)]">
-                {title || (lang === "en" ? "Making your book" : "പുസ്തകം ഉണ്ടാക്കുന്നു")}
-              </h1>
-              <p className="mt-2 text-base text-[var(--ink-soft)]">
-                {status ||
-                  (lang === "en" ? "Drawing your pages…" : "പേജുകൾ വരയ്ക്കുന്നു…")}
-              </p>
-              <div className="mt-4 flex gap-2" aria-label="Generation progress">
-                {[1, 2, 3, 4].map((idx) => {
-                  const done = panels.some((p) => p.idx === idx && p.image_url);
-                  return (
-                    <span
-                      key={idx}
-                      className={`h-2 flex-1 rounded-full ${
-                        done ? "bg-[#f2f2f2]" : "bg-[#252525]"
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+          <div>
+            <h1 className="font-display text-3xl font-semibold text-[var(--ink)]">
+              {title ||
+                (lang === "en"
+                  ? "Making your book"
+                  : "പുസ്തകം ഉണ്ടാക്കുന്നു")}
+            </h1>
+            <p className="mt-2 text-base text-[var(--ink-soft)]">
+              {status ||
+                (lang === "en"
+                  ? "Drawing your pages…"
+                  : "പേജുകൾ വരയ്ക്കുന്നു…")}
+            </p>
+            <div className="mt-4 flex gap-2" aria-label="Generation progress">
+              {[1, 2, 3, 4].map((idx) => {
+                const done = panels.some((p) => p.idx === idx && p.image_url);
+                return (
+                  <span
+                    key={idx}
+                    className={`h-2 flex-1 rounded-full ${
+                      done ? "bg-[#f2f2f2]" : "bg-[#252525]"
+                    }`}
+                  />
+                );
+              })}
             </div>
-
-            <aside className="waiting-card">
-              <p className="waiting-card__eyebrow">
-                {lang === "en" ? "While AI draws" : "AI വരയ്ക്കുമ്പോൾ"}
-              </p>
-              <p className="waiting-card__text">
-                {lang === "en"
-                  ? "We are keeping Malayalam text outside the model so the comic stays readable."
-                  : "കഥയിലെ വാക്കുകൾ വായിക്കാൻ പറ്റുന്ന പോലെ പിന്നീട് കോമിക് ബോക്സുകളായി വയ്ക്കുന്നു."}
-              </p>
-            </aside>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <CoverStudio
+            title={title}
+            subtitle={subtitle}
+            direction={coverDirection}
+            imageUrl={coverUrl}
+            completedPanels={panels.filter((panel) => panel.image_url).length}
+            coverFailed={coverFailed}
+            lang={lang}
+          />
+
+          <div className="grid gap-3 sm:grid-cols-4">
             {[1, 2, 3, 4].map((idx) => {
               const panel = panels.find((p) => p.idx === idx);
               return (
@@ -659,6 +694,8 @@ export default function CreateFlow() {
             subtitle={subtitle}
             titleEditable
             onTitleChange={updateTitle}
+            coverUrl={coverUrl}
+            coverDirection={coverDirection}
             showBadges
             initialPage={page}
             editable
@@ -685,7 +722,15 @@ export default function CreateFlow() {
               </>
             }
           />
-          {bookId ? <SharePanel bookId={bookId} lang={lang} /> : null}
+          {bookId ? (
+            <SharePanel
+              bookId={bookId}
+              lang={lang}
+              title={title}
+              coverUrl={coverUrl}
+              coverDirection={coverDirection}
+            />
+          ) : null}
         </section>
       )}
     </div>

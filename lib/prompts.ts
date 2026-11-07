@@ -62,3 +62,37 @@ Setting: India — follow the region and place described in the scene (village, 
 ${textInstruction}
 Square composition.`;
 }
+
+export function buildCoverPrompt(params: {
+  characterDescription: string;
+  concept: string;
+  illustrationPrompt: string;
+  focalPoint: string;
+  titleZone: "top" | "bottom";
+  palette: string[];
+  withStyleRefs?: boolean;
+}) {
+  const refNote = params.withStyleRefs
+    ? `Match ONLY the graphic-novel technique of the reference images: confident line weight, flat colour, and tactile print texture.
+Do not copy reference characters, faces, clothes, props, lettering, or compositions.`
+    : "";
+  const safeArea =
+    params.titleZone === "top"
+      ? "Keep the upper 28% naturally calm and low-detail for an HTML title. Place the main focal action below it."
+      : "Keep the lower 28% naturally calm and low-detail for an HTML title. Place the main focal action above it.";
+
+  return `${STYLE_PREFIX}
+${refNote}
+Create original PORTRAIT key art for a premium children's comic-book front cover.
+Story concept: ${params.concept}
+Visual direction: ${params.illustrationPrompt}
+Character identity: ${params.characterDescription}
+Focal composition: ${params.focalPoint}
+Suggested colour harmony: ${params.palette.join(", ")}.
+${safeArea}
+Use dramatic depth, a clear silhouette, expressive faces, and one memorable symbolic visual idea.
+This is dedicated cover art, not a panel screenshot or a collage. Do not add a border or fake book mockup.
+ABSOLUTELY NO text, letters, words, title, typography, speech bubbles, captions, signs, logos, signatures, or watermarks.
+The application will add all lettering afterward.
+Portrait 2:3 composition.`;
+}

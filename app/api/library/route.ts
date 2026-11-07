@@ -6,7 +6,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("books")
       .select(
-        "id, title_ml, title_en, narrator_label, is_demo, created_at, panels(idx, image_url)",
+        "id, title_ml, title_en, narrator_label, cover_url, cover_direction, is_demo, created_at, panels(idx, image_url)",
       )
       .eq("is_public", true)
       .order("created_at", { ascending: false })
@@ -24,7 +24,14 @@ export async function GET() {
         : [];
       return {
         ...book,
-        cover_url: panels.find((panel) => panel.image_url)?.image_url || null,
+        is_new:
+          !book.is_demo &&
+          Date.now() - new Date(book.created_at).getTime() <
+            24 * 60 * 60 * 1000,
+        cover_url:
+          book.cover_url ||
+          panels.find((panel) => panel.image_url)?.image_url ||
+          null,
         panels: undefined,
       };
     });

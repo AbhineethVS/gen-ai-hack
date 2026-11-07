@@ -10,6 +10,10 @@ export async function POST(req: Request) {
     const narrator_label =
       String(body.narrator_label ?? "").trim() || "മുത്തശ്ശി";
     const character_sheet = body.character_sheet;
+    const cover_direction =
+      body.cover_direction && typeof body.cover_direction === "object"
+        ? body.cover_direction
+        : {};
     const panels = Array.isArray(body.panels) ? body.panels : [];
 
     if (!title_ml || !character_sheet || panels.length < 1) {
@@ -28,6 +32,7 @@ export async function POST(req: Request) {
         narrator_label,
         original_text,
         character_sheet,
+        cover_direction,
         is_public: false,
         is_demo: false,
       })

@@ -13,8 +13,8 @@ export default function HomeSplash() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setPhase("lang");
-      return;
+      const immediate = window.setTimeout(() => setPhase("lang"), 0);
+      return () => window.clearTimeout(immediate);
     }
 
     const rise = window.setTimeout(() => setPhase("rise"), 900);

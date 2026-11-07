@@ -30,10 +30,21 @@ export type CharacterSheet = {
   description: string;
 };
 
+export type CoverTitleZone = "top" | "bottom";
+
+export type CoverDirection = {
+  concept: string;
+  illustration_prompt: string;
+  focal_point: string;
+  title_zone: CoverTitleZone;
+  palette: string[];
+};
+
 export type StoryPayload = {
   title_ml: string;
   title_en: string;
   character_sheet: CharacterSheet;
+  cover_direction: CoverDirection;
   panels: StoryPanel[];
   safety?: {
     child_safe?: boolean;
@@ -48,6 +59,8 @@ export type BookRecord = {
   title_en: string | null;
   narrator_label: string | null;
   character_sheet: CharacterSheet;
+  cover_url: string | null;
+  cover_direction: CoverDirection;
   is_public: boolean;
   is_demo: boolean;
   created_at: string;

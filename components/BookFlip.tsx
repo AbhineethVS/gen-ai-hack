@@ -6,7 +6,7 @@ import ComicPanel, {
   type ComicPanelData,
   type ComicPanelPatch,
 } from "@/components/ComicPanel";
-import type { UILang } from "@/lib/types";
+import type { CoverDirection, UILang } from "@/lib/types";
 
 export type FlipPanel = ComicPanelData;
 
@@ -18,6 +18,8 @@ type Props = {
   titleEditable?: boolean;
   onTitleChange?: (value: string) => void;
   narratorLabel?: string | null;
+  coverUrl?: string | null;
+  coverDirection?: CoverDirection | null;
   showBadges?: boolean;
   isDemo?: boolean;
   initialPage?: number;
@@ -36,6 +38,8 @@ export default function BookFlip({
   titleEditable = false,
   onTitleChange,
   narratorLabel,
+  coverUrl,
+  coverDirection,
   showBadges = false,
   isDemo = false,
   initialPage = 0,
@@ -53,11 +57,6 @@ export default function BookFlip({
   const rootRef = useRef<HTMLDivElement>(null);
 
   const total = panels.length;
-
-  useEffect(() => {
-    const page = Math.floor(initialPage / 2) * 2;
-    setSpread(Math.min(Math.max(0, page), Math.max(0, total - 1)));
-  }, [initialPage, panels, total]);
 
   useEffect(() => {
     if (!fullscreen) return;
@@ -188,7 +187,8 @@ export default function BookFlip({
               title={title}
               subtitle={subtitle}
               narratorLabel={narratorLabel}
-              imageUrl={panels[0]?.image_url}
+              imageUrl={coverUrl || panels[0]?.image_url}
+              direction={coverDirection}
               isDemo={isDemo}
               editable={titleEditable}
               onTitleChange={onTitleChange}

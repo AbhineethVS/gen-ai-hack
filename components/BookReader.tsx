@@ -154,6 +154,8 @@ export default function BookReader({ bookId }: Props) {
         title={title}
         subtitle={subtitle}
         narratorLabel={book.narrator_label}
+        coverUrl={book.cover_url}
+        coverDirection={book.cover_direction}
         showBadges
         isDemo={book.is_demo}
         editable={!book.is_public}
@@ -165,6 +167,9 @@ export default function BookReader({ bookId }: Props) {
         <SharePanel
           bookId={bookId}
           lang={lang}
+          title={title}
+          coverUrl={book.cover_url}
+          coverDirection={book.cover_direction}
           onPublished={() =>
             setBook((current) =>
               current ? { ...current, is_public: true } : current,
