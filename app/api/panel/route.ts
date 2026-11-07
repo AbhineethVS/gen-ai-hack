@@ -154,10 +154,20 @@ export async function POST(req: Request) {
     }
 
     const { data: publicData } = supabase.storage.from("panels").getPublicUrl(path);
+    const imageUrl = publicData.publicUrl;
+
+    // Persist on the panel row when this is a real book (not risk-test ids)
+    if (bookId && bookId !== "risk") {
+      await supabase
+        .from("panels")
+        .update({ image_url: imageUrl })
+        .eq("book_id", bookId)
+        .eq("idx", idx);
+    }
 
     return Response.json({
       idx,
-      image_url: publicData.publicUrl,
+      image_url: imageUrl,
       path,
       style_refs: withStyleRefs,
     });

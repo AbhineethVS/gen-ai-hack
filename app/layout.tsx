@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Noto_Sans_Malayalam } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const display = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
+  axes: ["SOFT", "WONK", "opsz"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const malayalam = Noto_Sans_Malayalam({
+  variable: "--font-malayalam",
+  subsets: ["malayalam", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -22,9 +24,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ml"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${malayalam.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-stone-50 text-stone-900">
+      <body className="flex min-h-full flex-col text-[var(--ink)]">
         {children}
       </body>
     </html>
