@@ -27,7 +27,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${malayalam.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col text-[var(--ink)]">
-        {children}
+        <div className="site-backdrop" aria-hidden="true">
+          <div className="site-backdrop__fireflies">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+        <div className="site-shell">{children}</div>
       </body>
     </html>
   );

@@ -1,18 +1,26 @@
 import QRCode from "qrcode";
+import { getPublicSiteUrl } from "@/lib/site-url";
 
 export async function GET(req: Request) {
   try {
     const requested = new URL(req.url).searchParams.get("url") || "";
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+    const siteUrl = getPublicSiteUrl(req);
+    let target: URL | null = null;
+    try {
+      target = new URL(requested);
+    } catch {
+      target = null;
+    }
     if (
-      !requested ||
+      !target ||
       requested.length > 500 ||
-      (siteUrl && !requested.startsWith(`${siteUrl}/`))
+      target.origin !== siteUrl ||
+      !target.pathname.startsWith("/book/")
     ) {
       return new Response("Invalid URL", { status: 400 });
     }
 
-    const svg = await QRCode.toString(requested, {
+    const svg = await QRCode.toString(target.toString(), {
       type: "svg",
       errorCorrectionLevel: "H",
       margin: 1,

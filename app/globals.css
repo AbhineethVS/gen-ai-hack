@@ -22,10 +22,56 @@
 }
 
 body {
+  position: relative;
   min-height: 100%;
-  background: #0a0a0a;
+  isolation: isolate;
+  background: #080b1c;
   color: var(--ink);
   font-family: var(--font-malayalam), "Noto Sans Malayalam", system-ui, sans-serif;
+}
+
+.site-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100dvh;
+  flex: 1;
+  flex-direction: column;
+}
+
+.site-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #080b1c;
+}
+
+.site-backdrop::before,
+.site-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.site-backdrop::before {
+  inset: -12px;
+  background-image: url("/images/enchanted-forest-storybook.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(6px);
+  transform: scale(1.025);
+}
+
+.site-backdrop::after {
+  background:
+    linear-gradient(180deg, rgba(3, 7, 24, 0.64), rgba(3, 6, 20, 0.77)),
+    radial-gradient(circle at 50% 52%, rgba(65, 55, 130, 0.2), transparent 42%);
+  box-shadow:
+    inset 0 0 10rem rgba(1, 3, 14, 0.44),
+    inset 0 -25dvh 18rem rgba(8, 5, 31, 0.3);
 }
 
 .font-display {
@@ -41,47 +87,20 @@ body {
   flex-direction: column;
   align-items: center;
   isolation: isolate;
-  background: #080b1c;
+  background: transparent;
   color: #f2f2f2;
   overflow: hidden;
   padding: 2.5rem 1.5rem 3rem;
 }
 
-.home-stage::before,
-.home-stage::after {
-  content: "";
+.site-backdrop__fireflies {
   position: absolute;
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
-.home-stage::before {
-  inset: -12px;
-  z-index: -2;
-  background-image: url("/images/enchanted-forest-storybook.jpg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  filter: blur(6px);
-  transform: scale(1.025);
-}
-
-.home-stage::after {
-  inset: 0;
-  z-index: -1;
-  background: rgba(3, 7, 24, 0.58);
-  box-shadow:
-    inset 0 0 10rem rgba(1, 3, 14, 0.44),
-    inset 0 -25dvh 18rem rgba(8, 5, 31, 0.3);
-}
-
-.home-stage__fireflies {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.home-stage__fireflies span {
+.site-backdrop__fireflies span {
   position: absolute;
   width: 3px;
   height: 3px;
@@ -94,14 +113,14 @@ body {
   animation: home-firefly-drift 19s ease-in-out infinite alternate;
 }
 
-.home-stage__fireflies span:nth-child(1) {
+.site-backdrop__fireflies span:nth-child(1) {
   top: 21%;
   left: 15%;
   animation-delay: -3s;
   animation-duration: 22s;
 }
 
-.home-stage__fireflies span:nth-child(2) {
+.site-backdrop__fireflies span:nth-child(2) {
   top: 34%;
   right: 17%;
   width: 2px;
@@ -110,14 +129,14 @@ body {
   animation-duration: 25s;
 }
 
-.home-stage__fireflies span:nth-child(3) {
+.site-backdrop__fireflies span:nth-child(3) {
   top: 59%;
   left: 23%;
   animation-delay: -7s;
   animation-duration: 18s;
 }
 
-.home-stage__fireflies span:nth-child(4) {
+.site-backdrop__fireflies span:nth-child(4) {
   right: 26%;
   bottom: 21%;
   width: 4px;
@@ -126,7 +145,7 @@ body {
   animation-duration: 27s;
 }
 
-.home-stage__fireflies span:nth-child(5) {
+.site-backdrop__fireflies span:nth-child(5) {
   top: 15%;
   right: 36%;
   width: 2px;
@@ -135,7 +154,7 @@ body {
   animation-duration: 23s;
 }
 
-.home-stage__fireflies span:nth-child(6) {
+.site-backdrop__fireflies span:nth-child(6) {
   bottom: 14%;
   left: 38%;
   width: 2px;
@@ -2050,7 +2069,7 @@ body {
 }
 
 @media (max-width: 639px) {
-  .home-stage__fireflies span {
+  .site-backdrop__fireflies span {
     animation: none;
     opacity: 0.36;
   }
@@ -2076,7 +2095,7 @@ body {
 
   .home-stage__lang,
   .home-stage__actions,
-  .home-stage__fireflies span,
+  .site-backdrop__fireflies span,
   .cover-edit__selection,
   .cover-edit__title-line,
   .cover-edit__swatches,

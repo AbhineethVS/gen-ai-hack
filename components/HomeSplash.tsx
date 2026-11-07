@@ -35,15 +35,6 @@ export default function HomeSplash() {
 
   return (
     <main className={`home-stage home-stage--${phase}`}>
-      <div className="home-stage__fireflies" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-
       <div className="home-stage__brand">
         <h1 className="font-display home-stage__title">മുത്തശ്ശി കഥ</h1>
       </div>

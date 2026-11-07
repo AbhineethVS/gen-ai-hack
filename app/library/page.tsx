@@ -3,7 +3,7 @@ import LibraryGrid from "@/components/LibraryGrid";
 
 export default function LibraryPage() {
   return (
-    <main className="relative flex min-h-full flex-1 flex-col bg-[#0a0a0a]">
+    <main className="relative flex min-h-full flex-1 flex-col">
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-10">
         <header className="flex items-center justify-between gap-4">
           <Link

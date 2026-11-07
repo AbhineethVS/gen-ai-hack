@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase";
+import { getPublicSiteUrl } from "@/lib/site-url";
 
 export async function POST(req: Request) {
   try {
@@ -111,7 +112,7 @@ gentle folklore are fine. Return only JSON:
       return Response.json({ error: publishError.message }, { status: 500 });
     }
 
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+    const siteUrl = getPublicSiteUrl(req);
     return Response.json({
       ok: true,
       url: `${siteUrl}/book/${bookId}`,
