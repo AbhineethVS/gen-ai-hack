@@ -1,7 +1,10 @@
-/** Prefill for typed fallback / "Try a sample story". */
-export const SAMPLE_MALAYALAM_STORY = `ഒരു മുത്തശ്ശിക്ക് ഒരു ചെറിയ തോട്ടം ഉണ്ടായിരുന്നു. അവിടെ ഒരു മാമ്പഴ മരം ഉണ്ടായിരുന്നു. ഒരു ദിവസം ഒരു കുരങ്ങൻ വന്ന് പഴം പറിച്ചു. മുത്തശ്ശി ചിരിച്ചുകൊണ്ട് പറഞ്ഞു, “മകനേ, നീയും കഴിക്കൂ, ഞാനും കഴിക്കാം.” അവർ ഒരുമിച്ച് ഇന്നു കഴിച്ചു.`;
+export const DEFAULT_CHARACTER_DESCRIPTION =
+  "Kind elderly Kerala grandmother named Ammachi, grey hair in a neat bun, warm brown skin, cream and mustard cotton saree with a thin red border, round gentle face, soft smile, simple gold stud earrings; little grandchild Anu has short black hair, bright eyes, and a simple cotton frock when the story needs her";
 
-export const SAMPLE_ENGLISH_STORY = `Once there was a grandmother in a Kerala village who kept a tiny garden and one mango tree. One afternoon a cheeky monkey climbed up and plucked a ripe mango. Instead of scolding him, she laughed and said, "Child, you eat some, I will eat some too." They sat under the tree and shared the sweet fruit together.`;
+/** Prefill for typed fallback / "Try a sample story". */
+export const SAMPLE_MALAYALAM_STORY = `കേരളത്തിലെ ഒരു ചെറിയ ഗ്രാമത്തിൽ, കനാൽക്കരയിലുള്ള വീട്ടിൽ മുത്തശ്ശി അനുവിന് പുട്ട് ഉണ്ടാക്കാൻ അതിരാവിലെ എഴുന്നേറ്റു. അടുക്കളയിൽ നിന്ന് ആവി ഉയർന്നു. അനു ജനൽ വഴി കനാലിൽ പാറുന്ന തുമ്പികളെ നോക്കി നിന്നു. പെട്ടെന്ന് വൈദ്യുതി മുറിഞ്ഞു, സ്റ്റീമർ നിന്നു. അനുവിന്റെ കണ്ണിൽ കണ്ണീർ. മുത്തശ്ശി ഒരു ചെറിയ വിളക്ക് കത്തിച്ചു, ചിരിച്ചു പറഞ്ഞു, “മകളേ, ഇരുട്ടിന് ചൂടൻ കാലത്തിനെ തടയാനാവില്ല.” അവർ പഴയ അടുപ്പത്തിൽ പുട്ട് പൂർത്തിയാക്കി, നടയിൽ ഇരുന്നു, തേങ്ങാ ചിരകിയത് വിതറി കഴിച്ചു. ഈന്തപ്പനയിലൂടെ ആദ്യത്തെ വെളിച്ചം വീണു.`;
+
+export const SAMPLE_ENGLISH_STORY = `In a quiet Kerala village by the backwaters, Ammachi woke before sunrise to make puttu for little Anu. Steam rose from the cooker while Anu pressed her nose to the kitchen window, watching dragonflies skim the canal. Suddenly the power went out and the steamer stopped. Anu's eyes filled with tears. Ammachi lit a small oil lamp, smiled, and said, "Child, even darkness cannot stop a warm breakfast." They finished the puttu on the old clay stove, sat on the veranda, and shared it with grated coconut as the first light touched the palm trees.`;
 
 export type UILang = "ml" | "en";
 
@@ -11,44 +14,45 @@ export function sampleStoryForLang(lang: UILang) {
 
 /** Hardcoded 4-panel story for risk testing when LLM is skipped or fails. */
 export const SAMPLE_STORY_JSON = {
-  title_ml: "മാമ്പഴവും കുരങ്ങനും",
-  title_en: "The Mango and the Monkey",
+  title_ml: "പുട്ടും വിളക്കും",
+  title_en: "Puttu and the Little Lamp",
   character_sheet: {
     name: "Ammachi",
-    description:
-      "Kind elderly Kerala grandmother, grey hair in a neat bun, warm brown skin, cream and mustard cotton saree with a thin red border, round gentle face, soft smile, simple gold stud earrings",
+    description: DEFAULT_CHARACTER_DESCRIPTION,
   },
   panels: [
     {
       idx: 1,
       scene_description:
-        "A sunny Kerala courtyard garden with a mango tree. Ammachi stands near the tree looking up at ripe mangoes. Clear empty space near the top of the frame.",
-      caption_ml: "മുത്തശ്ശിക്ക് ഒരു ചെറിയ തോട്ടവും മാമ്പഴ മരവും ഉണ്ടായിരുന്നു.",
-      caption_en: "Ammachi had a little garden and a mango tree.",
+        "Warm Kerala kitchen at dawn, Ammachi steaming puttu, little Anu watching dragonflies through the window over a canal. Soft morning light. Clear empty space near the top of the frame.",
+      caption_ml: "മുത്തശ്ശി അതിരാവിലെ അനുവിന് പുട്ട് ഉണ്ടാക്കി.",
+      caption_en: "At dawn, Ammachi made puttu for little Anu.",
       dialogue: [] as { speaker: string; text_ml: string }[],
     },
     {
       idx: 2,
       scene_description:
-        "A small brown monkey sits on a mango-tree branch holding a ripe mango. Ammachi looks up from below, surprised but soft. Empty space near the top.",
-      caption_ml: "ഒരു കുരങ്ങൻ വന്ന് ഒരു പഴം പറിച്ചു.",
-      caption_en: "A monkey came and picked a fruit.",
-      dialogue: [{ speaker: "കുരങ്ങൻ", text_ml: "ഇതെനിക്ക്!" }],
+        "The kitchen goes dim as power fails, steamer stops steaming, Anu looks worried, Ammachi calm beside an unlit lamp. Empty space near the top.",
+      caption_ml: "പെട്ടെന്ന് വൈദ്യുതി മുറിഞ്ഞു. അനു ദുഃഖിച്ചു.",
+      caption_en: "Suddenly the power went out. Anu felt sad.",
+      dialogue: [{ speaker: "അനു", text_ml: "പുട്ട് നിർത്തി!" }],
     },
     {
       idx: 3,
       scene_description:
-        "Ammachi smiles and gestures kindly toward the monkey, offering to share. Warm afternoon light. Empty space near the top.",
-      caption_ml: "മുത്തശ്ശി ചിരിച്ചു. അവൾ പങ്കുവയ്ക്കാൻ തയ്യാറായി.",
-      caption_en: "Ammachi smiled. She was ready to share.",
-      dialogue: [{ speaker: "മുത്തശ്ശി", text_ml: "മകനേ, നീയും കഴിക്കൂ." }],
+        "Ammachi lights a small oil lamp and smiles at Anu, warm glow on their faces in the kitchen. Empty space near the top.",
+      caption_ml: "മുത്തശ്ശി വിളക്ക് കത്തിച്ചു ചിരിച്ചു.",
+      caption_en: "Ammachi lit a lamp and smiled.",
+      dialogue: [
+        { speaker: "മുത്തശ്ശി", text_ml: "ഇരുട്ടിന് ചൂടൻ കാലത്തിനെ തടയാനാവില്ല." },
+      ],
     },
     {
       idx: 4,
       scene_description:
-        "Ammachi and the monkey sit together under the mango tree sharing sliced mango on a banana leaf. Peaceful, warm. Empty space near the top.",
-      caption_ml: "അവർ ഒരുമിച്ച് മാമ്പഴം കഴിച്ചു.",
-      caption_en: "They ate the mango together.",
+        "Ammachi and Anu sit on a Kerala veranda at sunrise sharing puttu with grated coconut, palms and canal in the soft background. Empty space near the top.",
+      caption_ml: "അവർ നടയിൽ ഇരുന്നു പുട്ട് പങ്കിട്ടു.",
+      caption_en: "They sat on the veranda and shared the puttu.",
       dialogue: [],
     },
   ],

@@ -1,4 +1,7 @@
-import { SAMPLE_STORY_JSON } from "@/lib/sample-story";
+import {
+  DEFAULT_CHARACTER_DESCRIPTION,
+  SAMPLE_STORY_JSON,
+} from "@/lib/sample-story";
 
 type LoosePanel = Record<string, unknown>;
 type LooseStory = Record<string, unknown>;
@@ -21,7 +24,7 @@ function characterDescription(sheet: unknown): string {
         .join(", ")
     );
   }
-  return SAMPLE_STORY_JSON.character_sheet.description;
+  return DEFAULT_CHARACTER_DESCRIPTION;
 }
 
 function sceneDescription(panel: LoosePanel, fallbackCaption: string): string {

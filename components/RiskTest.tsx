@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  DEFAULT_CHARACTER_DESCRIPTION,
   sampleStoryForLang,
   type UILang,
 } from "@/lib/sample-story";
@@ -213,7 +214,7 @@ export default function RiskTest() {
         story.character_sheet?.description ||
         story.character_sheet?.visual ||
         (typeof story.character_sheet === "string" ? story.character_sheet : "") ||
-        "";
+        DEFAULT_CHARACTER_DESCRIPTION;
 
       const firstThree = story.panels.slice(0, 3).map(
         (
@@ -236,11 +237,6 @@ export default function RiskTest() {
           caption_en: p.caption_en || p.caption_ml || p.caption || "",
         }),
       );
-
-      if (!characterDescription) {
-        setError("Story missing character details — try again");
-        return;
-      }
 
       setPanels(
         firstThree.map((p: (typeof firstThree)[number]) => ({
