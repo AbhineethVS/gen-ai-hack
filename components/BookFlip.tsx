@@ -32,8 +32,6 @@ type Props = {
   footer?: ReactNode;
 };
 
-type Dir = "next" | "prev" | null;
-
 function normalizeDialogue(raw: unknown): DialogueLine[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -50,6 +48,69 @@ function normalizeDialogue(raw: unknown): DialogueLine[] {
     .filter(Boolean) as DialogueLine[];
 }
 
+function LeafContent({
+  panel,
+  lang,
+  side,
+}: {
+  panel: FlipPanel;
+  lang: UILang;
+  side: "art" | "story";
+}) {
+  const caption =
+    lang === "en"
+      ? panel.caption_en || panel.caption_ml
+      : panel.caption_ml || panel.caption_en;
+  const dialogue = normalizeDialogue(panel.dialogue);
+
+  if (side === "art") {
+    return (
+      <div className="leaf leaf--art">
+        <div className="leaf__art">
+          {panel.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={panel.image_url} alt="" className="leaf__img" />
+          ) : (
+            <div className="leaf__empty">
+              {panel.error || (lang === "en" ? "Drawing…" : "വരയ്ക്കുന്നു…")}
+            </div>
+          )}
+          {dialogue.length > 0 ? (
+            <div className="leaf__bubbles">
+              {dialogue.map((line, i) => (
+                <SpeechBubble
+                  key={`${line.speaker}-${i}`}
+                  speaker={line.speaker}
+                  text={line.text_ml}
+                  side={i % 2 === 0 ? "left" : "right"}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  const first = caption?.trim()?.[0] ?? "";
+  const rest = caption?.trim()?.slice(1) ?? "";
+
+  return (
+    <div className="leaf leaf--story">
+      <div className="leaf__story-inner">
+        {caption ? (
+          <p className="leaf__prose">
+            {first ? <span className="leaf__drop">{first}</span> : null}
+            {rest}
+          </p>
+        ) : (
+          <p className="leaf__prose leaf__prose--muted">…</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function BookFlip({
   panels,
   lang,
@@ -62,23 +123,32 @@ export default function BookFlip({
   initialPage = 0,
   footer,
 }: Props) {
-  const [page, setPage] = useState(initialPage);
-  const [anim, setAnim] = useState<Dir>(null);
-  const [displayPage, setDisplayPage] = useState(initialPage);
+  const [spread, setSpread] = useState(initialPage);
+  const [turning, setTurning] = useState<"next" | "prev" | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
   const touchX = useRef<number | null>(null);
   const busy = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   const total = panels.length;
 
   useEffect(() => {
-    setPage(initialPage);
-    setDisplayPage(initialPage);
-  }, [initialPage, panels]);
+    setSpread(Math.min(Math.max(0, initialPage), Math.max(0, total - 1)));
+  }, [initialPage, panels, total]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [fullscreen]);
 
   const go = useCallback(
     (dir: "next" | "prev") => {
       if (busy.current || total < 1) return;
-      const nextIdx = dir === "next" ? page + 1 : page - 1;
+      const nextIdx = dir === "next" ? spread + 1 : spread - 1;
       if (nextIdx < 0 || nextIdx >= total) return;
 
       const reduce =
@@ -86,43 +156,47 @@ export default function BookFlip({
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (reduce) {
-        setPage(nextIdx);
-        setDisplayPage(nextIdx);
+        setSpread(nextIdx);
         return;
       }
 
       busy.current = true;
-      setAnim(dir);
+      setTurning(dir);
       window.setTimeout(() => {
-        setPage(nextIdx);
-        setDisplayPage(nextIdx);
-        setAnim(null);
+        setSpread(nextIdx);
+        setTurning(null);
         busy.current = false;
-      }, 420);
+      }, 700);
     },
-    [page, total],
+    [spread, total],
   );
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && fullscreen) setFullscreen(false);
       if (e.key === "ArrowRight") go("next");
       if (e.key === "ArrowLeft") go("prev");
+      if (e.key === "f" || e.key === "F") setFullscreen((v) => !v);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, fullscreen]);
 
-  const current = panels[displayPage];
+  const current = panels[spread];
+  const incoming =
+    turning === "next"
+      ? panels[spread + 1]
+      : turning === "prev"
+        ? panels[spread - 1]
+        : null;
+
   if (!current) return null;
 
-  const caption =
-    lang === "en"
-      ? current.caption_en || current.caption_ml
-      : current.caption_ml || current.caption_en;
-  const dialogue = normalizeDialogue(current.dialogue);
-
   return (
-    <div className="book-flip">
+    <div
+      ref={rootRef}
+      className={`book-flip ${fullscreen ? "book-flip--fs" : ""}`}
+    >
       <header className="book-flip__header">
         <div className="min-w-0 flex-1">
           {titleEditable ? (
@@ -143,14 +217,30 @@ export default function BookFlip({
           {showBadges ? (
             <div className="book-flip__badges">
               <span className="book-badge">AI-illustrated</span>
-              {isDemo ? <span className="book-badge book-badge--muted">Demo story</span> : null}
+              {isDemo ? (
+                <span className="book-badge book-badge--muted">Demo story</span>
+              ) : null}
             </div>
           ) : null}
         </div>
+        <button
+          type="button"
+          className="book-fs-btn"
+          onClick={() => setFullscreen((v) => !v)}
+          aria-pressed={fullscreen}
+        >
+          {fullscreen
+            ? lang === "en"
+              ? "Exit"
+              : "അടയ്ക്കുക"
+            : lang === "en"
+              ? "Full screen"
+              : "പൂർണ്ണ സ്ക്രീൻ"}
+        </button>
       </header>
 
       <div
-        className="book-shell"
+        className="open-book"
         onTouchStart={(e) => {
           touchX.current = e.changedTouches[0]?.clientX ?? null;
         }}
@@ -165,61 +255,78 @@ export default function BookFlip({
           else go("prev");
         }}
       >
-        <div className="book-shell__spine" aria-hidden />
-        <div
-          className={`book-page ${
-            anim === "next"
-              ? "book-page--turn-next"
-              : anim === "prev"
-                ? "book-page--turn-prev"
-                : ""
-          }`}
-        >
+        <div className="open-book__cover" aria-hidden />
+        <div className="open-book__spread">
+          <div className="open-book__gutter" aria-hidden />
+
+          {/* Pages underneath the turn */}
+          <div className="open-book__verso">
+            <LeafContent
+              panel={turning === "next" && incoming ? incoming : current}
+              lang={lang}
+              side="art"
+            />
+          </div>
+          <div className="open-book__recto">
+            <LeafContent
+              panel={turning === "next" && incoming ? incoming : current}
+              lang={lang}
+              side="story"
+            />
+          </div>
+
+          {/* Full spread peels bottom-right → top-left */}
+          {turning && incoming ? (
+            <div className={`turn-leaf turn-leaf--${turning}`} aria-hidden>
+              <div className="turn-leaf__front turn-leaf__front--spread">
+                <div className="turn-leaf__half">
+                  <LeafContent
+                    panel={turning === "next" ? current : incoming}
+                    lang={lang}
+                    side="art"
+                  />
+                </div>
+                <div className="turn-leaf__half">
+                  <LeafContent
+                    panel={turning === "next" ? current : incoming}
+                    lang={lang}
+                    side="story"
+                  />
+                </div>
+              </div>
+              <div className="turn-leaf__back turn-leaf__back--spread">
+                <div className="turn-leaf__half">
+                  <LeafContent
+                    panel={turning === "next" ? incoming : current}
+                    lang={lang}
+                    side="art"
+                  />
+                </div>
+                <div className="turn-leaf__half">
+                  <LeafContent
+                    panel={turning === "next" ? incoming : current}
+                    lang={lang}
+                    side="story"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <button
             type="button"
             className="book-hotzone book-hotzone--left"
             aria-label={lang === "en" ? "Previous page" : "മുൻ പേജ്"}
-            disabled={page <= 0}
+            disabled={spread <= 0 || Boolean(turning)}
             onClick={() => go("prev")}
           />
           <button
             type="button"
             className="book-hotzone book-hotzone--right"
             aria-label={lang === "en" ? "Next page" : "അടുത്ത പേജ്"}
-            disabled={page >= total - 1}
+            disabled={spread >= total - 1 || Boolean(turning)}
             onClick={() => go("next")}
           />
-
-          <div className="book-page__art">
-            {current.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={current.image_url} alt="" className="book-page__img" />
-            ) : (
-              <div className="book-page__empty">
-                {current.error || (lang === "en" ? "Drawing…" : "വരയ്ക്കുന്നു…")}
-              </div>
-            )}
-
-            {dialogue.length > 0 ? (
-              <div className="book-page__bubbles">
-                {dialogue.map((line, i) => (
-                  <SpeechBubble
-                    key={`${line.speaker}-${i}-${displayPage}`}
-                    speaker={line.speaker}
-                    text={line.text_ml}
-                    side={i % 2 === 0 ? "left" : "right"}
-                  />
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="book-page__narrator">
-            <span className="book-page__narrator-label">
-              {lang === "en" ? "Narrator" : "കഥാകാരൻ"}
-            </span>
-            <p className="book-page__caption">{caption}</p>
-          </div>
         </div>
       </div>
 
@@ -227,25 +334,27 @@ export default function BookFlip({
         <button
           type="button"
           className="book-nav-btn"
-          disabled={page <= 0}
+          disabled={spread <= 0 || Boolean(turning)}
           onClick={() => go("prev")}
         >
           {lang === "en" ? "← Prev" : "← പിന്നോട്ട്"}
         </button>
         <p className="book-flip__count">
-          {page + 1} / {total}
+          {spread + 1} / {total}
         </p>
         <button
           type="button"
           className="book-nav-btn book-nav-btn--primary"
-          disabled={page >= total - 1}
+          disabled={spread >= total - 1 || Boolean(turning)}
           onClick={() => go("next")}
         >
           {lang === "en" ? "Next →" : "അടുത്തത് →"}
         </button>
       </div>
 
-      {footer ? <div className="book-flip__footer">{footer}</div> : null}
+      {footer && !fullscreen ? (
+        <div className="book-flip__footer">{footer}</div>
+      ) : null}
     </div>
   );
 }
