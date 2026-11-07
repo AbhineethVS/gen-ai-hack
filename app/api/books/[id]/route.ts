@@ -46,22 +46,17 @@ export async function PATCH(
     const { id } = await ctx.params;
     const body = await req.json();
     const panelIdx = Number(body.panel_idx);
-    if (!id || !Number.isInteger(panelIdx) || panelIdx < 1 || panelIdx > 4) {
-      return Response.json(
-        { error: "book id and panel_idx 1-4 are required" },
-        { status: 400 },
-      );
-    }
+    if (!id) return Response.json({ error: "book id required" }, { status: 400 });
 
-    const update: Record<string, unknown> = {};
+    const panelUpdate: Record<string, unknown> = {};
     if (typeof body.caption_ml === "string") {
-      update.caption_ml = body.caption_ml.trim().slice(0, 500);
+      panelUpdate.caption_ml = body.caption_ml.trim().slice(0, 500);
     }
     if (typeof body.caption_en === "string") {
-      update.caption_en = body.caption_en.trim().slice(0, 500);
+      panelUpdate.caption_en = body.caption_en.trim().slice(0, 500);
     }
     if (Array.isArray(body.dialogue)) {
-      update.dialogue = body.dialogue.slice(0, 3).map(
+      panelUpdate.dialogue = body.dialogue.slice(0, 3).map(
         (line: Record<string, unknown>) => ({
           speaker: String(line.speaker || "").trim().slice(0, 80),
           text_ml: String(line.text_ml || "").trim().slice(0, 240),
@@ -73,19 +68,42 @@ export async function PATCH(
         }),
       );
     }
-    if (Object.keys(update).length === 0) {
+    const bookUpdate: Record<string, unknown> = {};
+    if (typeof body.title_ml === "string") {
+      bookUpdate.title_ml = body.title_ml.trim().slice(0, 180);
+    }
+    if (typeof body.title_en === "string") {
+      bookUpdate.title_en = body.title_en.trim().slice(0, 180);
+    }
+    if (
+      Object.keys(panelUpdate).length === 0 &&
+      Object.keys(bookUpdate).length === 0
+    ) {
       return Response.json({ error: "No changes supplied" }, { status: 400 });
     }
 
     const supabase = createServiceClient();
-    const { error } = await supabase
-      .from("panels")
-      .update(update)
-      .eq("book_id", id)
-      .eq("idx", panelIdx);
-
-    if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+    if (Object.keys(panelUpdate).length > 0) {
+      if (!Number.isInteger(panelIdx) || panelIdx < 1 || panelIdx > 4) {
+        return Response.json(
+          { error: "panel_idx 1-4 is required for panel changes" },
+          { status: 400 },
+        );
+      }
+      const { error } = await supabase
+        .from("panels")
+        .update(panelUpdate)
+        .eq("book_id", id)
+        .eq("idx", panelIdx);
+      if (error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+    }
+    if (Object.keys(bookUpdate).length > 0) {
+      const { error } = await supabase.from("books").update(bookUpdate).eq("id", id);
+      if (error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
     }
     return Response.json({ ok: true });
   } catch (err) {

@@ -44,6 +44,7 @@ export default function CreateFlow() {
   const [error, setError] = useState("");
   const [transcript, setTranscript] = useState("");
   const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [bookId, setBookId] = useState<string | null>(null);
   const [panels, setPanels] = useState<LivePanel[]>([]);
   const [page, setPage] = useState(0);
@@ -57,6 +58,7 @@ export default function CreateFlow() {
   const pollStartedAtRef = useRef(0);
   const autoStartedRef = useRef(false);
   const saveTimersRef = useRef<Record<number, number>>({});
+  const titleSaveTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -65,8 +67,28 @@ export default function CreateFlow() {
       Object.values(saveTimersRef.current).forEach((timer) =>
         window.clearTimeout(timer),
       );
+      if (titleSaveTimerRef.current) {
+        window.clearTimeout(titleSaveTimerRef.current);
+      }
     };
   }, []);
+
+  function updateTitle(value: string) {
+    setTitle(value);
+    if (!bookId) return;
+    if (titleSaveTimerRef.current) {
+      window.clearTimeout(titleSaveTimerRef.current);
+    }
+    titleSaveTimerRef.current = window.setTimeout(() => {
+      void fetch(`/api/books/${bookId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          lang === "en" ? { title_en: value } : { title_ml: value },
+        ),
+      });
+    }, 600);
+  }
 
   function updatePanelWords(idx: number, patch: ComicPanelPatch) {
     setPanels((current) =>
@@ -331,7 +353,14 @@ export default function CreateFlow() {
         }),
       );
 
-      setTitle(story.title_ml || story.title_en || "");
+      setTitle(
+        lang === "en"
+          ? story.title_en || story.title_ml || ""
+          : story.title_ml || story.title_en || "",
+      );
+      setSubtitle(
+        lang === "en" ? story.title_ml || "" : story.title_en || "",
+      );
       setPanels(storyPanels);
 
       const bookRes = await fetch("/api/books", {
@@ -627,8 +656,9 @@ export default function CreateFlow() {
             panels={panels}
             lang={lang}
             title={title}
+            subtitle={subtitle}
             titleEditable
-            onTitleChange={setTitle}
+            onTitleChange={updateTitle}
             showBadges
             initialPage={page}
             editable

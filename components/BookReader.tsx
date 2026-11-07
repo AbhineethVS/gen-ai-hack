@@ -56,6 +56,8 @@ export default function BookReader({ bookId }: Props) {
 
   const title =
     lang === "en" ? book.title_en || book.title_ml : book.title_ml;
+  const subtitle =
+    lang === "en" ? book.title_ml : book.title_en;
 
   function updatePanel(idx: number, patch: ComicPanelPatch) {
     setBook((current) =>
@@ -150,6 +152,7 @@ export default function BookReader({ bookId }: Props) {
         panels={book.panels || []}
         lang={lang}
         title={title}
+        subtitle={subtitle}
         narratorLabel={book.narrator_label}
         showBadges
         isDemo={book.is_demo}

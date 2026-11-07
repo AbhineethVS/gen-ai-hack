@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import BookCover from "@/components/BookCover";
 import ComicPanel, {
   type ComicPanelData,
   type ComicPanelPatch,
@@ -13,6 +14,7 @@ type Props = {
   panels: FlipPanel[];
   lang: UILang;
   title?: string;
+  subtitle?: string | null;
   titleEditable?: boolean;
   onTitleChange?: (value: string) => void;
   narratorLabel?: string | null;
@@ -30,6 +32,7 @@ export default function BookFlip({
   panels,
   lang,
   title = "",
+  subtitle,
   titleEditable = false,
   onTitleChange,
   narratorLabel,
@@ -43,6 +46,7 @@ export default function BookFlip({
   redrawingIdx,
 }: Props) {
   const [spread, setSpread] = useState(Math.floor(initialPage / 2) * 2);
+  const [atCover, setAtCover] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [editing, setEditing] = useState(false);
   const touchX = useRef<number | null>(null);
@@ -67,11 +71,19 @@ export default function BookFlip({
   const go = useCallback(
     (dir: "next" | "prev") => {
       if (total < 1) return;
+      if (atCover) {
+        if (dir === "next") setAtCover(false);
+        return;
+      }
+      if (dir === "prev" && spread === 0) {
+        setAtCover(true);
+        return;
+      }
       const nextIdx = dir === "next" ? spread + 2 : spread - 2;
       if (nextIdx < 0 || nextIdx >= total) return;
       setSpread(nextIdx);
     },
-    [spread, total],
+    [atCover, spread, total],
   );
 
   useEffect(() => {
@@ -170,7 +182,20 @@ export default function BookFlip({
         }}
       >
         <div className="comic-book__cover" aria-hidden />
-        <div className="comic-spread">
+        {atCover ? (
+          <div className="book-cover-stage">
+            <BookCover
+              title={title}
+              subtitle={subtitle}
+              narratorLabel={narratorLabel}
+              imageUrl={panels[0]?.image_url}
+              isDemo={isDemo}
+              editable={titleEditable}
+              onTitleChange={onTitleChange}
+            />
+          </div>
+        ) : (
+          <div className="comic-spread">
           <div className="comic-spread__gutter" aria-hidden />
 
           <div className="comic-page comic-page--left">
@@ -208,7 +233,7 @@ export default function BookFlip({
             type="button"
             className="book-hotzone book-hotzone--left"
             aria-label={lang === "en" ? "Previous page" : "മുൻ പേജ്"}
-            disabled={spread <= 0}
+            disabled={false}
             onClick={() => go("prev")}
           />
           <button
@@ -218,26 +243,30 @@ export default function BookFlip({
             disabled={spread + 2 >= total}
             onClick={() => go("next")}
           />
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="book-flip__nav">
         <button
           type="button"
           className="book-nav-btn"
-          disabled={spread <= 0}
+          disabled={atCover}
           onClick={() => go("prev")}
         >
           {lang === "en" ? "← Prev" : "← പിന്നോട്ട്"}
         </button>
         <p className="book-flip__count">
-          {spread + 1}
-          {rightPanel ? `-${Math.min(spread + 2, total)}` : ""} / {total}
+          {atCover
+            ? lang === "en"
+              ? "Cover"
+              : "മുഖചിത്രം"
+            : `${spread + 1}${rightPanel ? `-${Math.min(spread + 2, total)}` : ""} / ${total}`}
         </p>
         <button
           type="button"
           className="book-nav-btn book-nav-btn--primary"
-          disabled={spread + 2 >= total}
+          disabled={!atCover && spread + 2 >= total}
           onClick={() => go("next")}
         >
           {lang === "en" ? "Next →" : "അടുത്തത് →"}

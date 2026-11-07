@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BookCover from "@/components/BookCover";
 
 export type LibraryBook = {
   id: string;
@@ -18,17 +19,15 @@ export default function BookCard({ book }: { book: LibraryBook }) {
   return (
     <Link href={`/book/${book.id}`} className="library-card">
       <div className="library-card__cover">
-        {book.cover_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={book.cover_url} alt="" className="library-card__image" />
-        ) : (
-          <div className="library-card__empty">മുത്തശ്ശി കഥ</div>
-        )}
-        <div className="library-card__badges">
-          {isNew ? <span className="library-badge library-badge--new">New</span> : null}
-          {book.is_demo ? <span className="library-badge">Demo story</span> : null}
-          <span className="library-badge">AI-illustrated</span>
-        </div>
+        <BookCover
+          title={book.title_ml}
+          subtitle={book.title_en}
+          narratorLabel={book.narrator_label}
+          imageUrl={book.cover_url}
+          isDemo={book.is_demo}
+          isNew={isNew}
+          compact
+        />
       </div>
       <div className="library-card__body">
         <h2 className="library-card__title">{book.title_ml}</h2>

@@ -50,13 +50,29 @@ export default function SharePanel({ bookId, lang, onPublished }: Props) {
             ? "Children can read your story now."
             : "കുട്ടികൾക്ക് ഇപ്പോൾ നിങ്ങളുടെ കഥ വായിക്കാം."}
         </h2>
-        <div className="share-panel__actions">
-          <a href={url} className="share-panel__primary">
-            {lang === "en" ? "Open my book" : "എന്റെ പുസ്തകം തുറക്കൂ"}
-          </a>
-          <Link href="/library" className="share-panel__secondary">
-            {lang === "en" ? "Visit library" : "ലൈബ്രറിയിലേക്ക്"}
-          </Link>
+        <div className="share-success">
+          <div className="share-success__qr">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/qr?url=${encodeURIComponent(url)}`}
+              alt={lang === "en" ? "QR code to open this book" : "ഈ പുസ്തകത്തിലേക്കുള്ള QR കോഡ്"}
+            />
+          </div>
+          <div>
+            <p className="share-success__scan">
+              {lang === "en"
+                ? "Scan to read this book"
+                : "പുസ്തകം വായിക്കാൻ സ്കാൻ ചെയ്യൂ"}
+            </p>
+            <div className="share-panel__actions">
+              <a href={url} className="share-panel__primary">
+                {lang === "en" ? "Open my book" : "എന്റെ പുസ്തകം തുറക്കൂ"}
+              </a>
+              <Link href="/library" className="share-panel__secondary">
+                {lang === "en" ? "Visit library" : "ലൈബ്രറിയിലേക്ക്"}
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     );
