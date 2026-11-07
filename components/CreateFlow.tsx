@@ -343,7 +343,7 @@ export default function CreateFlow() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-8 sm:py-12">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-8 sm:py-12">
       <header className="mb-8 flex items-start justify-between gap-4">
         <div>
           <Link

@@ -37,7 +37,7 @@ export default function BookReader({ bookId }: Props) {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-16 text-[var(--ink)]">
+      <div className="mx-auto w-full max-w-6xl px-5 py-16 text-[var(--ink)]">
         <p className="text-lg text-red-700">{error}</p>
       </div>
     );
@@ -45,7 +45,7 @@ export default function BookReader({ bookId }: Props) {
 
   if (!book) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-16 text-[var(--ink-soft)]">
+      <div className="mx-auto w-full max-w-6xl px-5 py-16 text-[var(--ink-soft)]">
         …
       </div>
     );
@@ -55,7 +55,7 @@ export default function BookReader({ bookId }: Props) {
     lang === "en" ? book.title_en || book.title_ml : book.title_ml;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 px-5 py-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-5 py-8">
       <div className="flex justify-end gap-2">
         <button
           type="button"

@@ -32,6 +32,8 @@ type Props = {
   footer?: ReactNode;
 };
 
+type TurnDir = "next" | "prev" | null;
+
 function normalizeDialogue(raw: unknown): DialogueLine[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -48,65 +50,51 @@ function normalizeDialogue(raw: unknown): DialogueLine[] {
     .filter(Boolean) as DialogueLine[];
 }
 
-function LeafContent({
+function ComicCard({
   panel,
   lang,
-  side,
+  pageNumber,
 }: {
-  panel: FlipPanel;
+  panel?: FlipPanel;
   lang: UILang;
-  side: "art" | "story";
+  pageNumber: number;
 }) {
+  if (!panel) {
+    return <div className="comic-card comic-card--blank" />;
+  }
+
   const caption =
     lang === "en"
       ? panel.caption_en || panel.caption_ml
       : panel.caption_ml || panel.caption_en;
   const dialogue = normalizeDialogue(panel.dialogue);
 
-  if (side === "art") {
-    return (
-      <div className="leaf leaf--art">
-        <div className="leaf__art">
-          {panel.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={panel.image_url} alt="" className="leaf__img" />
-          ) : (
-            <div className="leaf__empty">
-              {panel.error || (lang === "en" ? "Drawing…" : "വരയ്ക്കുന്നു…")}
-            </div>
-          )}
-          {dialogue.length > 0 ? (
-            <div className="leaf__bubbles">
-              {dialogue.map((line, i) => (
-                <SpeechBubble
-                  key={`${line.speaker}-${i}`}
-                  speaker={line.speaker}
-                  text={line.text_ml}
-                  side={i % 2 === 0 ? "left" : "right"}
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-
-  const first = caption?.trim()?.[0] ?? "";
-  const rest = caption?.trim()?.slice(1) ?? "";
-
   return (
-    <div className="leaf leaf--story">
-      <div className="leaf__story-inner">
-        {caption ? (
-          <p className="leaf__prose">
-            {first ? <span className="leaf__drop">{first}</span> : null}
-            {rest}
-          </p>
-        ) : (
-          <p className="leaf__prose leaf__prose--muted">…</p>
-        )}
-      </div>
+    <div className="comic-card">
+      {panel.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={panel.image_url} alt="" className="comic-card__img" />
+      ) : (
+        <div className="comic-card__empty">
+          {panel.error || (lang === "en" ? "Drawing..." : "വരയ്ക്കുന്നു...")}
+        </div>
+      )}
+
+      {dialogue.length > 0 ? (
+        <div className="comic-card__bubbles">
+          {dialogue.map((line, i) => (
+            <SpeechBubble
+              key={`${line.speaker}-${i}-${pageNumber}`}
+              speaker={line.speaker}
+              text={line.text_ml}
+              side={i % 2 === 0 ? "left" : "right"}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {caption ? <p className="comic-card__caption">{caption}</p> : null}
+      <span className="comic-card__page">{pageNumber}</span>
     </div>
   );
 }
@@ -123,8 +111,8 @@ export default function BookFlip({
   initialPage = 0,
   footer,
 }: Props) {
-  const [spread, setSpread] = useState(initialPage);
-  const [turning, setTurning] = useState<"next" | "prev" | null>(null);
+  const [spread, setSpread] = useState(Math.floor(initialPage / 2) * 2);
+  const [turning, setTurning] = useState<TurnDir>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const touchX = useRef<number | null>(null);
   const busy = useRef(false);
@@ -133,7 +121,8 @@ export default function BookFlip({
   const total = panels.length;
 
   useEffect(() => {
-    setSpread(Math.min(Math.max(0, initialPage), Math.max(0, total - 1)));
+    const page = Math.floor(initialPage / 2) * 2;
+    setSpread(Math.min(Math.max(0, page), Math.max(0, total - 1)));
   }, [initialPage, panels, total]);
 
   useEffect(() => {
@@ -148,7 +137,7 @@ export default function BookFlip({
   const go = useCallback(
     (dir: "next" | "prev") => {
       if (busy.current || total < 1) return;
-      const nextIdx = dir === "next" ? spread + 1 : spread - 1;
+      const nextIdx = dir === "next" ? spread + 2 : spread - 2;
       if (nextIdx < 0 || nextIdx >= total) return;
 
       const reduce =
@@ -166,7 +155,7 @@ export default function BookFlip({
         setSpread(nextIdx);
         setTurning(null);
         busy.current = false;
-      }, 700);
+      }, 760);
     },
     [spread, total],
   );
@@ -182,15 +171,12 @@ export default function BookFlip({
     return () => window.removeEventListener("keydown", onKey);
   }, [go, fullscreen]);
 
-  const current = panels[spread];
-  const incoming =
-    turning === "next"
-      ? panels[spread + 1]
-      : turning === "prev"
-        ? panels[spread - 1]
-        : null;
+  const leftPanel = panels[spread];
+  const rightPanel = panels[spread + 1];
+  const nextLeft = panels[spread + 2];
+  const prevRight = panels[spread - 1];
 
-  if (!current) return null;
+  if (!leftPanel) return null;
 
   return (
     <div
@@ -240,7 +226,7 @@ export default function BookFlip({
       </header>
 
       <div
-        className="open-book"
+        className="comic-book"
         onTouchStart={(e) => {
           touchX.current = e.changedTouches[0]?.clientX ?? null;
         }}
@@ -255,60 +241,39 @@ export default function BookFlip({
           else go("prev");
         }}
       >
-        <div className="open-book__cover" aria-hidden />
-        <div className="open-book__spread">
-          <div className="open-book__gutter" aria-hidden />
+        <div className="comic-book__cover" aria-hidden />
+        <div className="comic-spread">
+          <div className="comic-spread__gutter" aria-hidden />
 
-          {/* Pages underneath the turn */}
-          <div className="open-book__verso">
-            <LeafContent
-              panel={turning === "next" && incoming ? incoming : current}
-              lang={lang}
-              side="art"
-            />
+          <div className="comic-page comic-page--left">
+            <ComicCard panel={leftPanel} lang={lang} pageNumber={spread + 1} />
           </div>
-          <div className="open-book__recto">
-            <LeafContent
-              panel={turning === "next" && incoming ? incoming : current}
+          <div className="comic-page comic-page--right">
+            <ComicCard
+              panel={turning === "next" && nextLeft ? nextLeft : rightPanel}
               lang={lang}
-              side="story"
+              pageNumber={turning === "next" && nextLeft ? spread + 3 : spread + 2}
             />
           </div>
 
-          {/* Full spread peels bottom-right → top-left */}
-          {turning && incoming ? (
-            <div className={`turn-leaf turn-leaf--${turning}`} aria-hidden>
-              <div className="turn-leaf__front turn-leaf__front--spread">
-                <div className="turn-leaf__half">
-                  <LeafContent
-                    panel={turning === "next" ? current : incoming}
-                    lang={lang}
-                    side="art"
-                  />
-                </div>
-                <div className="turn-leaf__half">
-                  <LeafContent
-                    panel={turning === "next" ? current : incoming}
-                    lang={lang}
-                    side="story"
-                  />
-                </div>
+          {turning === "next" && rightPanel && nextLeft ? (
+            <div className="comic-turn comic-turn--next" aria-hidden>
+              <div className="comic-turn__front">
+                <ComicCard panel={rightPanel} lang={lang} pageNumber={spread + 2} />
               </div>
-              <div className="turn-leaf__back turn-leaf__back--spread">
-                <div className="turn-leaf__half">
-                  <LeafContent
-                    panel={turning === "next" ? incoming : current}
-                    lang={lang}
-                    side="art"
-                  />
-                </div>
-                <div className="turn-leaf__half">
-                  <LeafContent
-                    panel={turning === "next" ? incoming : current}
-                    lang={lang}
-                    side="story"
-                  />
-                </div>
+              <div className="comic-turn__back">
+                <ComicCard panel={nextLeft} lang={lang} pageNumber={spread + 3} />
+              </div>
+            </div>
+          ) : null}
+
+          {turning === "prev" && prevRight ? (
+            <div className="comic-turn comic-turn--prev" aria-hidden>
+              <div className="comic-turn__front">
+                <ComicCard panel={prevRight} lang={lang} pageNumber={spread} />
+              </div>
+              <div className="comic-turn__back">
+                <ComicCard panel={leftPanel} lang={lang} pageNumber={spread + 1} />
               </div>
             </div>
           ) : null}
@@ -324,7 +289,7 @@ export default function BookFlip({
             type="button"
             className="book-hotzone book-hotzone--right"
             aria-label={lang === "en" ? "Next page" : "അടുത്ത പേജ്"}
-            disabled={spread >= total - 1 || Boolean(turning)}
+            disabled={spread + 2 >= total || Boolean(turning)}
             onClick={() => go("next")}
           />
         </div>
@@ -340,12 +305,13 @@ export default function BookFlip({
           {lang === "en" ? "← Prev" : "← പിന്നോട്ട്"}
         </button>
         <p className="book-flip__count">
-          {spread + 1} / {total}
+          {spread + 1}
+          {rightPanel ? `-${Math.min(spread + 2, total)}` : ""} / {total}
         </p>
         <button
           type="button"
           className="book-nav-btn book-nav-btn--primary"
-          disabled={spread >= total - 1 || Boolean(turning)}
+          disabled={spread + 2 >= total || Boolean(turning)}
           onClick={() => go("next")}
         >
           {lang === "en" ? "Next →" : "അടുത്തത് →"}
