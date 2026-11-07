@@ -46,9 +46,10 @@ Rules:
 - Each panel may include a "dialogue" array of 0-2 short spoken lines
   ({speaker, text_ml}) for comic speech bubbles. Use dialogue only when a
   character clearly speaks; otherwise use an empty array. Keep lines very short.
-- Create a single "character_sheet" for the main character(s) with fixed visual
-  details (age, face, hair, clothing colours, accessories). Every panel must reuse
-  it exactly so the character looks the same.
+- Create a single "character_sheet" object with "name" and a NON-EMPTY
+  "description" string of fixed visual details (age, face, hair, clothing colours,
+  accessories). description must be at least one full sentence. Every panel must
+  reuse it exactly so the character looks the same.
 - Remove or generalise personal details: real full names (use a first name or a
   role like "Ammachi"), phone numbers, addresses, exact house/location details,
   and any identifying info. List what you removed.

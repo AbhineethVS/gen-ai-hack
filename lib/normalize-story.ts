@@ -46,7 +46,10 @@ export function normalizeStory(raw: unknown) {
   const fallback = SAMPLE_STORY_JSON;
 
   const sheetRaw = story.character_sheet ?? story.characterSheet ?? story.characters;
-  const description = characterDescription(sheetRaw);
+  let description = characterDescription(sheetRaw);
+  if (description.length < 40) {
+    description = DEFAULT_CHARACTER_DESCRIPTION;
+  }
   const name =
     (sheetRaw &&
       typeof sheetRaw === "object" &&

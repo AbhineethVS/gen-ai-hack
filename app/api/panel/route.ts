@@ -1,11 +1,11 @@
+import { DEFAULT_CHARACTER_DESCRIPTION } from "@/lib/sample-story";
 import { createServiceClient } from "@/lib/supabase";
 import { buildPanelPrompt } from "@/lib/prompts";
-
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const characterDescription = String(
+    let characterDescription = String(
       body.character_description ?? body.characterDescription ?? "",
     ).trim();
     const sceneDescription = String(
@@ -13,6 +13,10 @@ export async function POST(req: Request) {
     ).trim();
     const idx = Number(body.idx ?? body.index ?? 0);
     const bookId = String(body.book_id ?? "risk");
+
+    if (characterDescription.length < 40) {
+      characterDescription = DEFAULT_CHARACTER_DESCRIPTION;
+    }
 
     if (!characterDescription || !sceneDescription || !Number.isFinite(idx) || idx < 1) {
       return Response.json(
@@ -29,12 +33,9 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
-    const model = process.env.IMAGE_MODEL;
-    if (!apiKey || !model) {
-      return Response.json(
-        { error: "OPENAI_API_KEY or IMAGE_MODEL missing" },
-        { status: 500 },
-      );
+    const model = process.env.IMAGE_MODEL || "gpt-image-2.6-sunburst";
+    if (!apiKey) {
+      return Response.json({ error: "OPENAI_API_KEY missing" }, { status: 500 });
     }
 
     const prompt = buildPanelPrompt({
@@ -42,6 +43,8 @@ export async function POST(req: Request) {
       sceneDescription,
     });
 
+    // Latest GPT Image models: quality + complexity for detailed picture-book art
+    // https://developers.openai.com/api/docs/guides/image-generation
     const imageRes = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
@@ -52,6 +55,8 @@ export async function POST(req: Request) {
         model,
         prompt,
         size: "1024x1024",
+        quality: "high",
+        complexity: "high",
         n: 1,
       }),
     });
