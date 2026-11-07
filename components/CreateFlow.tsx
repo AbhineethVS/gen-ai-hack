@@ -478,14 +478,40 @@ export default function CreateFlow() {
 
       {step === "generating" && (
         <section className="flex flex-1 flex-col gap-6">
-          <div>
-            <h1 className="font-display text-3xl font-semibold text-[var(--ink)]">
-              {title || (lang === "en" ? "Making your book" : "പുസ്തകം ഉണ്ടാക്കുന്നു")}
-            </h1>
-            <p className="mt-2 text-base text-[var(--ink-soft)]">
-              {status ||
-                (lang === "en" ? "Drawing your pages…" : "പേജുകൾ വരയ്ക്കുന്നു…")}
-            </p>
+          <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
+            <div>
+              <h1 className="font-display text-3xl font-semibold text-[var(--ink)]">
+                {title || (lang === "en" ? "Making your book" : "പുസ്തകം ഉണ്ടാക്കുന്നു")}
+              </h1>
+              <p className="mt-2 text-base text-[var(--ink-soft)]">
+                {status ||
+                  (lang === "en" ? "Drawing your pages…" : "പേജുകൾ വരയ്ക്കുന്നു…")}
+              </p>
+              <div className="mt-4 flex gap-2" aria-label="Generation progress">
+                {[1, 2, 3, 4].map((idx) => {
+                  const done = panels.some((p) => p.idx === idx && p.image_url);
+                  return (
+                    <span
+                      key={idx}
+                      className={`h-2 flex-1 rounded-full ${
+                        done ? "bg-[#f2f2f2]" : "bg-[#252525]"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            <aside className="waiting-card">
+              <p className="waiting-card__eyebrow">
+                {lang === "en" ? "While AI draws" : "AI വരയ്ക്കുമ്പോൾ"}
+              </p>
+              <p className="waiting-card__text">
+                {lang === "en"
+                  ? "We are keeping Malayalam text outside the model so the comic stays readable."
+                  : "കഥയിലെ വാക്കുകൾ വായിക്കാൻ പറ്റുന്ന പോലെ പിന്നീട് കോമിക് ബോക്സുകളായി വയ്ക്കുന്നു."}
+              </p>
+            </aside>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -494,7 +520,7 @@ export default function CreateFlow() {
               return (
                 <figure
                   key={idx}
-                  className={`panel-reveal overflow-hidden rounded-2xl bg-[var(--wash)] ring-1 ring-[var(--line)] ${
+                  className={`gen-card panel-reveal ${
                     panel?.image_url ? "panel-reveal--in" : ""
                   }`}
                 >
@@ -506,10 +532,20 @@ export default function CreateFlow() {
                       className="aspect-square w-full object-cover"
                     />
                   ) : (
-                    <div className="flex aspect-square items-center justify-center text-[var(--ink-soft)]">
-                      {panel?.error || `… ${idx}`}
+                    <div className="gen-card__placeholder">
+                      <span className="gen-card__shimmer" />
+                      <span className="gen-card__number">{idx}</span>
                     </div>
                   )}
+                  <figcaption className="gen-card__caption">
+                    {panel
+                      ? lang === "en"
+                        ? panel.caption_en || panel.caption_ml
+                        : panel.caption_ml || panel.caption_en
+                      : lang === "en"
+                        ? "Story page is being drawn..."
+                        : "കഥയുടെ പേജ് വരയ്ക്കുന്നു..."}
+                  </figcaption>
                 </figure>
               );
             })}
