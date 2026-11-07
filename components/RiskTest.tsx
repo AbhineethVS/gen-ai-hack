@@ -258,6 +258,7 @@ export default function RiskTest() {
                 idx: panel.idx,
                 character_description: characterDescription,
                 scene_description: panel.scene_description,
+                use_style_refs: true,
               }),
             });
             const data = await res.json();
