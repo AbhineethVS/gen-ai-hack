@@ -307,7 +307,7 @@ export default function CreateFlow() {
                     ? panel.caption_en || panel.caption_ml
                     : panel.caption_ml || panel.caption_en,
                 dialogue_lines: panel.dialogue,
-                bake_text: true,
+                bake_text: false,
                 use_style_refs: true,
               }),
             });
