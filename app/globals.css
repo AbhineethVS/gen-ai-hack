@@ -905,6 +905,26 @@ body {
   padding: 0.2rem 0.45rem;
 }
 
+.comic-card__redraw {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 8;
+  min-height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(5, 5, 5, 0.78);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0 0.7rem;
+  backdrop-filter: blur(6px);
+}
+
+.comic-card__redraw:disabled {
+  opacity: 0.6;
+}
+
 .comic-turn {
   position: absolute;
   top: clamp(0.35rem, 1vw, 0.55rem);
@@ -973,6 +993,207 @@ body {
 
 .comic-book .book-hotzone {
   width: 22%;
+}
+
+/* Share and publish */
+.share-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid #2a2a2a;
+  border-radius: 1.25rem;
+  background: #111;
+  padding: clamp(1.15rem, 3vw, 1.75rem);
+}
+
+.share-panel--success {
+  border-color: #3f5d4b;
+  background: #101712;
+}
+
+.share-panel__eyebrow {
+  margin: 0;
+  color: #92c9a5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.share-panel__title {
+  margin: 0;
+  color: #f2f2f2;
+  font-family: var(--font-display), "Fraunces", Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  font-weight: 600;
+}
+
+.share-panel__consent {
+  display: flex;
+  max-width: 42rem;
+  align-items: flex-start;
+  gap: 0.8rem;
+  color: #d8d8d8;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.share-panel__consent input {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.15rem;
+  accent-color: #f2f2f2;
+}
+
+.share-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.share-panel__primary,
+.share-panel__secondary {
+  display: inline-flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  padding: 0 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.share-panel__primary {
+  border: 0;
+  background: #f2f2f2;
+  color: #0a0a0a;
+}
+
+.share-panel__primary:disabled {
+  opacity: 0.35;
+}
+
+.share-panel__secondary {
+  border: 1px solid #333;
+  background: #171717;
+  color: #f2f2f2;
+}
+
+.share-panel__error {
+  margin: 0;
+  color: #fca5a5;
+  line-height: 1.5;
+}
+
+/* Public library */
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 1.25rem;
+}
+
+.library-card {
+  overflow: hidden;
+  border: 1px solid #282828;
+  border-radius: 1.1rem;
+  background: #111;
+  color: #f2f2f2;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.library-card:hover {
+  transform: translateY(-3px);
+  border-color: #555;
+}
+
+.library-card__cover {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #171717;
+}
+
+.library-card__image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.library-card:hover .library-card__image {
+  transform: scale(1.025);
+}
+
+.library-card__empty {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+}
+
+.library-card__badges {
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.library-badge {
+  border-radius: 999px;
+  background: rgba(5, 5, 5, 0.82);
+  color: #f2f2f2;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.28rem 0.55rem;
+  backdrop-filter: blur(5px);
+}
+
+.library-badge--new {
+  background: #f2f2f2;
+  color: #0a0a0a;
+}
+
+.library-card__body {
+  padding: 1rem;
+}
+
+.library-card__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.library-card__subtitle {
+  margin: 0.35rem 0 0;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.library-card__credit {
+  margin: 0.75rem 0 0;
+  color: #777;
+  font-size: 0.78rem;
+}
+
+.library-card--loading {
+  min-height: 24rem;
+  background: linear-gradient(100deg, #111 20%, #1c1c1c 40%, #111 60%);
+  background-size: 200% 100%;
+  animation: library-shimmer 1.4s linear infinite;
+}
+
+@keyframes library-shimmer {
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 820px) {
@@ -1074,6 +1295,7 @@ body {
   .mic-pulse,
   .panel-reveal,
   .gen-card__shimmer,
+  .library-card--loading,
   .turn-leaf--next,
   .turn-leaf--prev,
   .comic-turn--next,

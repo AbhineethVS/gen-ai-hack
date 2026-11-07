@@ -1,0 +1,31 @@
+{
+  "books": [
+    {
+      "id": "4e3e5e55-d776-43f9-a0bd-2c96afa66d89",
+      "title_ml": "നന്മയുടെ മൂന്ന് ആഗ്രഹങ്ങൾ",
+      "title_en": "Three Wishes for Kindness",
+      "narrator_label": "മുത്തശ്ശി",
+      "is_demo": true,
+      "created_at": "2026-11-07T08:17:23.205Z",
+      "cover_url": "https://iteuoglchrmtqzjuecsv.supabase.co/storage/v1/object/public/panels/4e3e5e55-d776-43f9-a0bd-2c96afa66d89/panel-1-1794039497647.png"
+    },
+    {
+      "id": "b75d756e-2a56-4820-be83-280a97aa6788",
+      "title_ml": "പ്രതീക്ഷയുടെ വെള്ളിവിത്ത്",
+      "title_en": "The Silver Seed of Hope",
+      "narrator_label": "മുത്തശ്ശി",
+      "is_demo": true,
+      "created_at": "2026-11-07T08:05:14.463Z",
+      "cover_url": "https://iteuoglchrmtqzjuecsv.supabase.co/storage/v1/object/public/panels/b75d756e-2a56-4820-be83-280a97aa6788/panel-1-1794038764397.png"
+    },
+    {
+      "id": "2a63122d-56cb-4f8b-89ce-50ccae234992",
+      "title_ml": "അർജുന്റെ മൂന്ന് ആഗ്രഹങ്ങൾ",
+      "title_en": "Arjun’s Three Wishes",
+      "narrator_label": "മുത്തശ്ശി",
+      "is_demo": true,
+      "created_at": "2026-11-07T07:39:56.355Z",
+      "cover_url": "https://iteuoglchrmtqzjuecsv.supabase.co/storage/v1/object/public/panels/2a63122d-56cb-4f8b-89ce-50ccae234992/panel-1-1794037247221.png"
+    }
+  ]
+}

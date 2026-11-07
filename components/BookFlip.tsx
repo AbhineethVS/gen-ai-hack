@@ -22,6 +22,8 @@ type Props = {
   footer?: ReactNode;
   editable?: boolean;
   onPanelChange?: (idx: number, patch: ComicPanelPatch) => void;
+  onRedraw?: (idx: number) => void;
+  redrawingIdx?: number | null;
 };
 
 export default function BookFlip({
@@ -37,6 +39,8 @@ export default function BookFlip({
   footer,
   editable = false,
   onPanelChange,
+  onRedraw,
+  redrawingIdx,
 }: Props) {
   const [spread, setSpread] = useState(Math.floor(initialPage / 2) * 2);
   const [fullscreen, setFullscreen] = useState(false);
@@ -176,6 +180,10 @@ export default function BookFlip({
               pageNumber={spread + 1}
               editable={editing}
               onChange={(patch) => onPanelChange?.(leftPanel.idx, patch)}
+              onRedraw={
+                editable && onRedraw ? () => onRedraw(leftPanel.idx) : undefined
+              }
+              redrawing={redrawingIdx === leftPanel.idx}
             />
           </div>
           <div className="comic-page comic-page--right">
@@ -187,6 +195,12 @@ export default function BookFlip({
               onChange={(patch) =>
                 rightPanel && onPanelChange?.(rightPanel.idx, patch)
               }
+              onRedraw={
+                editable && onRedraw && rightPanel
+                  ? () => onRedraw(rightPanel.idx)
+                  : undefined
+              }
+              redrawing={redrawingIdx === rightPanel?.idx}
             />
           </div>
 

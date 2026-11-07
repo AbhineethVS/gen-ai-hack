@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import BookFlip from "@/components/BookFlip";
 import type { ComicPanelPatch } from "@/components/ComicPanel";
 import MicButton from "@/components/MicButton";
+import SharePanel from "@/components/SharePanel";
 import { formatTimer } from "@/lib/format";
 import { sampleStoryForLang } from "@/lib/sample-story";
 import type { StoryPanel, UILang } from "@/lib/types";
@@ -46,6 +47,8 @@ export default function CreateFlow() {
   const [bookId, setBookId] = useState<string | null>(null);
   const [panels, setPanels] = useState<LivePanel[]>([]);
   const [page, setPage] = useState(0);
+  const [characterDescription, setCharacterDescription] = useState("");
+  const [redrawingIdx, setRedrawingIdx] = useState<number | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -82,6 +85,45 @@ export default function CreateFlow() {
         body: JSON.stringify({ panel_idx: idx, ...patch }),
       });
     }, 600);
+  }
+
+  async function redrawPanel(idx: number) {
+    const panel = panels.find((item) => item.idx === idx);
+    if (!panel || !bookId || !characterDescription) return;
+    setRedrawingIdx(idx);
+    setError("");
+    try {
+      const res = await fetch("/api/panel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          book_id: bookId,
+          idx,
+          character_description: characterDescription,
+          scene_description: panel.scene_description,
+          caption_text:
+            lang === "en"
+              ? panel.caption_en || panel.caption_ml
+              : panel.caption_ml || panel.caption_en,
+          dialogue_lines: panel.dialogue,
+          bake_text: false,
+          use_style_refs: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not redraw");
+      setPanels((current) =>
+        current.map((item) =>
+          item.idx === idx
+            ? { ...item, image_url: data.image_url, text_baked: false }
+            : item,
+        ),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not redraw");
+    } finally {
+      setRedrawingIdx(null);
+    }
   }
 
   useEffect(() => {
@@ -278,6 +320,7 @@ export default function CreateFlow() {
       }
 
       const characterDescription = characterDescriptionFrom(story.character_sheet);
+      setCharacterDescription(characterDescription);
       const storyPanels: LivePanel[] = story.panels.slice(0, 4).map(
         (p: StoryPanel, i: number) => ({
           idx: Number(p.idx ?? i + 1) || i + 1,
@@ -590,11 +633,13 @@ export default function CreateFlow() {
             initialPage={page}
             editable
             onPanelChange={updatePanelWords}
+            onRedraw={redrawPanel}
+            redrawingIdx={redrawingIdx}
             footer={
               <>
                 {lang === "en"
-                  ? "Edit & share come next. Your book is saved."
-                  : "തിരുത്തലും പങ്കിടലും അടുത്തതാണ്. പുസ്തകം സേവ് ചെയ്തു."}
+                  ? "Your book is saved."
+                  : "പുസ്തകം സേവ് ചെയ്തു."}
                 {bookId ? (
                   <>
                     {" "}
@@ -610,6 +655,7 @@ export default function CreateFlow() {
               </>
             }
           />
+          {bookId ? <SharePanel bookId={bookId} lang={lang} /> : null}
         </section>
       )}
     </div>

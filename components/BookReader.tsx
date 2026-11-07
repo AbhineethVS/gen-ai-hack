@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BookFlip from "@/components/BookFlip";
 import type { ComicPanelPatch } from "@/components/ComicPanel";
+import SharePanel from "@/components/SharePanel";
 import type { BookRecord, UILang } from "@/lib/types";
 
 type Props = {
@@ -13,6 +14,7 @@ export default function BookReader({ bookId }: Props) {
   const [lang, setLang] = useState<UILang>("ml");
   const [book, setBook] = useState<BookRecord | null>(null);
   const [error, setError] = useState("");
+  const [redrawingIdx, setRedrawingIdx] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +75,50 @@ export default function BookReader({ bookId }: Props) {
     });
   }
 
+  async function redrawPanel(idx: number) {
+    const panel = book?.panels.find((item) => item.idx === idx);
+    if (!book || !panel) return;
+    setRedrawingIdx(idx);
+    setError("");
+    try {
+      const res = await fetch("/api/panel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          book_id: bookId,
+          idx,
+          character_description: book.character_sheet.description,
+          scene_description: panel.scene_description,
+          caption_text:
+            lang === "en"
+              ? panel.caption_en || panel.caption_ml
+              : panel.caption_ml || panel.caption_en,
+          dialogue_lines: panel.dialogue,
+          bake_text: false,
+          use_style_refs: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not redraw");
+      setBook((current) =>
+        current
+          ? {
+              ...current,
+              panels: current.panels.map((item) =>
+                item.idx === idx
+                  ? { ...item, image_url: data.image_url, text_baked: false }
+                  : item,
+              ),
+            }
+          : current,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not redraw");
+    } finally {
+      setRedrawingIdx(null);
+    }
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-5 py-8">
       <div className="flex justify-end gap-2">
@@ -109,7 +155,20 @@ export default function BookReader({ bookId }: Props) {
         isDemo={book.is_demo}
         editable={!book.is_public}
         onPanelChange={updatePanel}
+        onRedraw={redrawPanel}
+        redrawingIdx={redrawingIdx}
       />
+      {!book.is_public ? (
+        <SharePanel
+          bookId={bookId}
+          lang={lang}
+          onPublished={() =>
+            setBook((current) =>
+              current ? { ...current, is_public: true } : current,
+            )
+          }
+        />
+      ) : null}
     </div>
   );
 }

@@ -9,6 +9,7 @@ export type ComicPanelData = {
   idx: number;
   caption_ml?: string | null;
   caption_en?: string | null;
+  scene_description?: string;
   dialogue?: DialogueLine[] | null;
   image_url?: string | null;
   text_baked?: boolean | null;
@@ -27,6 +28,8 @@ type Props = {
   pageNumber: number;
   editable?: boolean;
   onChange?: (patch: ComicPanelPatch) => void;
+  onRedraw?: () => void;
+  redrawing?: boolean;
 };
 
 export default function ComicPanel({
@@ -35,6 +38,8 @@ export default function ComicPanel({
   pageNumber,
   editable = false,
   onChange,
+  onRedraw,
+  redrawing = false,
 }: Props) {
   if (!panel) {
     return <div className="comic-card comic-card--blank" />;
@@ -92,6 +97,25 @@ export default function ComicPanel({
       ) : null}
 
       <span className="comic-card__page">{pageNumber}</span>
+      {onRedraw ? (
+        <button
+          type="button"
+          className="comic-card__redraw"
+          disabled={redrawing}
+          onClick={(event) => {
+            event.stopPropagation();
+            onRedraw();
+          }}
+        >
+          {redrawing
+            ? lang === "en"
+              ? "Drawing..."
+              : "വരയ്ക്കുന്നു..."
+            : lang === "en"
+              ? "Draw again"
+              : "വീണ്ടും വരയ്ക്കുക"}
+        </button>
+      ) : null}
     </div>
   );
 }
