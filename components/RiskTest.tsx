@@ -204,6 +204,10 @@ export default function RiskTest() {
         body: JSON.stringify({ text }),
       });
       const storyData = await storyRes.json();
+      if (!storyRes.ok || storyData.error) {
+        setError(storyData.error || "Could not build story");
+        return;
+      }
       const story = storyData.story;
       if (!story?.panels?.length) {
         setError("Could not build story");

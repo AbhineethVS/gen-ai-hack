@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     const bookId = String(body.book_id ?? "risk");
     const useStyleRefs = body.use_style_refs !== false;
 
-    if (characterDescription.length < 40) {
+    if (characterDescription.length < 20) {
       characterDescription = DEFAULT_CHARACTER_DESCRIPTION;
     }
 

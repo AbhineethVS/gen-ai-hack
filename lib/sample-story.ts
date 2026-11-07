@@ -1,5 +1,6 @@
+/** Generic visual fallback — NOT a specific demo character. */
 export const DEFAULT_CHARACTER_DESCRIPTION =
-  "Kind elderly Kerala grandmother named Ammachi, grey hair in a neat bun, warm brown skin, cream and mustard cotton saree with a thin red border, round gentle face, soft smile, simple gold stud earrings; little grandchild Anu has short black hair, bright eyes, and a simple cotton frock when the story needs her";
+  "A warm-skinned Indian child or elder matching the story, simple traditional Indian clothes in soft colours, kind expressive face, clear silhouette, consistent outfit details for a children's comic";
 
 /** Prefill for typed fallback / "Try a sample story". */
 export const SAMPLE_MALAYALAM_STORY = `കേരളത്തിലെ ഒരു ചെറിയ ഗ്രാമത്തിൽ, കനാൽക്കരയിലുള്ള വീട്ടിൽ മുത്തശ്ശി അനുവിന് പുട്ട് ഉണ്ടാക്കാൻ അതിരാവിലെ എഴുന്നേറ്റു. അടുക്കളയിൽ നിന്ന് ആവി ഉയർന്നു. അനു ജനൽ വഴി കനാലിൽ പാറുന്ന തുമ്പികളെ നോക്കി നിന്നു. പെട്ടെന്ന് വൈദ്യുതി മുറിഞ്ഞു, സ്റ്റീമർ നിന്നു. അനുവിന്റെ കണ്ണിൽ കണ്ണീർ. മുത്തശ്ശി ഒരു ചെറിയ വിളക്ക് കത്തിച്ചു, ചിരിച്ചു പറഞ്ഞു, “മകളേ, ഇരുട്ടിന് ചൂടൻ കാലത്തിനെ തടയാനാവില്ല.” അവർ പഴയ അടുപ്പത്തിൽ പുട്ട് പൂർത്തിയാക്കി, നടയിൽ ഇരുന്നു, തേങ്ങാ ചിരകിയത് വിതറി കഴിച്ചു. ഈന്തപ്പനയിലൂടെ ആദ്യത്തെ വെളിച്ചം വീണു.`;
@@ -12,13 +13,14 @@ export function sampleStoryForLang(lang: UILang) {
   return lang === "en" ? SAMPLE_ENGLISH_STORY : SAMPLE_MALAYALAM_STORY;
 }
 
-/** Hardcoded 4-panel story for risk testing when LLM is skipped or fails. */
+/** Only used when client explicitly asks { hardcoded: true }. */
 export const SAMPLE_STORY_JSON = {
   title_ml: "പുട്ടും വിളക്കും",
   title_en: "Puttu and the Little Lamp",
   character_sheet: {
     name: "Ammachi",
-    description: DEFAULT_CHARACTER_DESCRIPTION,
+    description:
+      "Kind elderly Kerala grandmother named Ammachi, grey hair in a neat bun, warm brown skin, cream and mustard cotton saree with a thin red border, round gentle face, soft smile, simple gold stud earrings; little grandchild Anu has short black hair, bright eyes, and a simple cotton frock",
   },
   panels: [
     {
