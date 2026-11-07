@@ -35,6 +35,15 @@ export default function HomeSplash() {
 
   return (
     <main className={`home-stage home-stage--${phase}`}>
+      <div className="home-stage__fireflies" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+
       <div className="home-stage__brand">
         <h1 className="font-display home-stage__title">മുത്തശ്ശി കഥ</h1>
       </div>
@@ -49,6 +58,7 @@ export default function HomeSplash() {
             <button
               type="button"
               onClick={() => pickLang("ml")}
+              tabIndex={showLang ? 0 : -1}
               className={`home-lang-btn ${lang === "ml" ? "home-lang-btn--on" : ""}`}
             >
               മലയാളം
@@ -56,6 +66,7 @@ export default function HomeSplash() {
             <button
               type="button"
               onClick={() => pickLang("en")}
+              tabIndex={showLang ? 0 : -1}
               className={`home-lang-btn ${lang === "en" ? "home-lang-btn--on" : ""}`}
             >
               English
@@ -69,17 +80,23 @@ export default function HomeSplash() {
         >
           <Link
             href={`/create?mode=record&lang=${lang ?? "ml"}`}
+            tabIndex={showActions ? 0 : -1}
             className="home-mic"
           >
             {lang === "en" ? "Tell a story" : "കഥ പറയൂ"}
           </Link>
           <Link
             href={`/create?mode=type&lang=${lang ?? "ml"}`}
+            tabIndex={showActions ? 0 : -1}
             className="home-link"
           >
             {lang === "en" ? "Type instead" : "ടൈപ്പ് ചെയ്യുക"}
           </Link>
-          <Link href="/library" className="home-link home-link--muted">
+          <Link
+            href="/library"
+            tabIndex={showActions ? 0 : -1}
+            className="home-link home-link--muted"
+          >
             {lang === "en" ? "Children's library" : "കുട്ടികളുടെ ലൈബ്രറി"}
           </Link>
         </div>
