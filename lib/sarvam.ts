@@ -1,17 +1,45 @@
 const SARVAM_BASE = "https://api.sarvam.ai";
 
+export type SarvamLang = "ml-IN" | "en-IN";
+
 function apiKey() {
   const key = process.env.SARVAM_API_KEY;
   if (!key) throw new Error("SARVAM_API_KEY is missing");
   return key;
 }
 
-export async function transcribeSync(file: Blob, filename: string) {
+/** Sarvam rejects types like audio/webm;codecs=opus — strip parameters. */
+export function sanitizeAudioFile(file: Blob, filename: string): File {
+  const raw = (file.type || "audio/webm").split(";")[0].trim().toLowerCase();
+  const type =
+    raw === "audio/webm" ||
+    raw === "video/webm" ||
+    raw === "audio/ogg" ||
+    raw === "audio/opus" ||
+    raw === "audio/wav" ||
+    raw === "audio/mpeg" ||
+    raw === "audio/mp4" ||
+    raw === "audio/x-m4a"
+      ? raw === "video/webm"
+        ? "audio/webm"
+        : raw
+      : "audio/webm";
+
+  const safeName = filename.replace(/\.[^.]+$/, "") + ".webm";
+  return new File([file], safeName, { type });
+}
+
+export async function transcribeSync(
+  file: Blob,
+  filename: string,
+  languageCode: SarvamLang = "ml-IN",
+) {
+  const clean = sanitizeAudioFile(file, filename);
   const form = new FormData();
-  form.append("file", file, filename);
+  form.append("file", clean, clean.name);
   form.append("model", "saaras:v3");
   form.append("mode", "transcribe");
-  form.append("language_code", "ml-IN");
+  form.append("language_code", languageCode);
 
   const res = await fetch(`${SARVAM_BASE}/speech-to-text`, {
     method: "POST",
@@ -29,7 +57,13 @@ export async function transcribeSync(file: Blob, filename: string) {
   return String(data.transcript ?? "");
 }
 
-export async function startBatchJob(file: Blob, filename: string) {
+export async function startBatchJob(
+  file: Blob,
+  filename: string,
+  languageCode: SarvamLang = "ml-IN",
+) {
+  const clean = sanitizeAudioFile(file, filename);
+
   const initRes = await fetch(`${SARVAM_BASE}/speech-to-text/job/v1`, {
     method: "POST",
     headers: {
@@ -40,7 +74,7 @@ export async function startBatchJob(file: Blob, filename: string) {
       job_parameters: {
         model: "saaras:v3",
         mode: "transcribe",
-        language_code: "ml-IN",
+        language_code: languageCode,
       },
     }),
   });
@@ -54,7 +88,7 @@ export async function startBatchJob(file: Blob, filename: string) {
   }
 
   const jobId = String(initData.job_id);
-  const uploadName = filename || "audio.webm";
+  const uploadName = clean.name;
 
   const uploadRes = await fetch(`${SARVAM_BASE}/speech-to-text/job/v1/upload-files`, {
     method: "POST",
@@ -77,13 +111,19 @@ export async function startBatchJob(file: Blob, filename: string) {
   const fileUrl = signed?.file_url as string | undefined;
   if (!fileUrl) throw new Error("Sarvam did not return an upload URL");
 
+  const putHeaders: Record<string, string> = {
+    "Content-Type": clean.type,
+  };
+  if (signed.file_metadata && typeof signed.file_metadata === "object") {
+    for (const [k, v] of Object.entries(signed.file_metadata)) {
+      if (typeof v === "string") putHeaders[k] = v;
+    }
+  }
+
   const putRes = await fetch(fileUrl, {
     method: "PUT",
-    headers: {
-      "Content-Type": file.type || "audio/webm",
-      ...(signed.file_metadata || {}),
-    },
-    body: file,
+    headers: putHeaders,
+    body: clean,
   });
   if (!putRes.ok) {
     throw new Error(`Sarvam file upload failed (${putRes.status})`);

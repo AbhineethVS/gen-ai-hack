@@ -1,6 +1,14 @@
 /** Prefill for typed fallback / "Try a sample story". */
 export const SAMPLE_MALAYALAM_STORY = `ഒരു മുത്തശ്ശിക്ക് ഒരു ചെറിയ തോട്ടം ഉണ്ടായിരുന്നു. അവിടെ ഒരു മാമ്പഴ മരം ഉണ്ടായിരുന്നു. ഒരു ദിവസം ഒരു കുരങ്ങൻ വന്ന് പഴം പറിച്ചു. മുത്തശ്ശി ചിരിച്ചുകൊണ്ട് പറഞ്ഞു, “മകനേ, നീയും കഴിക്കൂ, ഞാനും കഴിക്കാം.” അവർ ഒരുമിച്ച് ഇന്നു കഴിച്ചു.`;
 
+export const SAMPLE_ENGLISH_STORY = `Once there was a grandmother in a Kerala village who kept a tiny garden and one mango tree. One afternoon a cheeky monkey climbed up and plucked a ripe mango. Instead of scolding him, she laughed and said, "Child, you eat some, I will eat some too." They sat under the tree and shared the sweet fruit together.`;
+
+export type UILang = "ml" | "en";
+
+export function sampleStoryForLang(lang: UILang) {
+  return lang === "en" ? SAMPLE_ENGLISH_STORY : SAMPLE_MALAYALAM_STORY;
+}
+
 /** Hardcoded 4-panel story for risk testing when LLM is skipped or fails. */
 export const SAMPLE_STORY_JSON = {
   title_ml: "മാമ്പഴവും കുരങ്ങനും",
