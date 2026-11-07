@@ -88,8 +88,8 @@ export default function BookReader({ bookId }: Props) {
             onClick={() => setLang("ml")}
             className={`min-h-11 rounded-xl px-3 text-sm font-medium ${
               lang === "ml"
-                ? "bg-[var(--teal)] text-white"
-                : "bg-white/70 ring-1 ring-[var(--line)]"
+                ? "bg-[#f2f2f2] text-[#0a0a0a]"
+                : "bg-[var(--wash)] ring-1 ring-[var(--line)]"
             }`}
           >
             മലയാളം
@@ -99,8 +99,8 @@ export default function BookReader({ bookId }: Props) {
             onClick={() => setLang("en")}
             className={`min-h-11 rounded-xl px-3 text-sm font-medium ${
               lang === "en"
-                ? "bg-[var(--teal)] text-white"
-                : "bg-white/70 ring-1 ring-[var(--line)]"
+                ? "bg-[#f2f2f2] text-[#0a0a0a]"
+                : "bg-[var(--wash)] ring-1 ring-[var(--line)]"
             }`}
           >
             English
@@ -109,8 +109,8 @@ export default function BookReader({ bookId }: Props) {
       </div>
 
       {current ? (
-        <div className="relative overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-soft)]">
-          <div className="relative aspect-square w-full bg-[var(--wash)]">
+        <div className="relative overflow-hidden rounded-3xl bg-[var(--wash)] ring-1 ring-[var(--line)]">
+          <div className="relative aspect-square w-full">
             {current.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -145,7 +145,7 @@ export default function BookReader({ bookId }: Props) {
           type="button"
           disabled={page <= 0}
           onClick={() => setPage((p) => Math.max(0, p - 1))}
-          className="min-h-14 min-w-28 rounded-2xl bg-white px-5 text-lg font-medium ring-1 ring-[var(--line)] disabled:opacity-40"
+          className="min-h-14 min-w-28 rounded-2xl bg-[var(--wash)] px-5 text-lg font-medium ring-1 ring-[var(--line)] disabled:opacity-40"
         >
           പിന്നോട്ട്
         </button>
@@ -156,7 +156,7 @@ export default function BookReader({ bookId }: Props) {
           type="button"
           disabled={page >= panels.length - 1}
           onClick={() => setPage((p) => Math.min(panels.length - 1, p + 1))}
-          className="min-h-14 min-w-28 rounded-2xl bg-[var(--teal)] px-5 text-lg font-medium text-white disabled:opacity-40"
+          className="min-h-14 min-w-28 rounded-2xl bg-[#f2f2f2] px-5 text-lg font-medium text-[#0a0a0a] disabled:opacity-40"
         >
           അടുത്തത്
         </button>

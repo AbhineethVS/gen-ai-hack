@@ -364,8 +364,8 @@ export default function CreateFlow() {
             onClick={() => setLang("ml")}
             className={`min-h-11 rounded-xl px-3 text-sm font-medium ${
               lang === "ml"
-                ? "bg-[var(--teal)] text-white"
-                : "bg-white/70 text-[var(--ink)] ring-1 ring-[var(--line)]"
+                ? "bg-[#f2f2f2] text-[#0a0a0a]"
+                : "bg-[var(--wash)] text-[var(--ink)] ring-1 ring-[var(--line)]"
             }`}
           >
             മലയാളം
@@ -375,8 +375,8 @@ export default function CreateFlow() {
             onClick={() => setLang("en")}
             className={`min-h-11 rounded-xl px-3 text-sm font-medium ${
               lang === "en"
-                ? "bg-[var(--teal)] text-white"
-                : "bg-white/70 text-[var(--ink)] ring-1 ring-[var(--line)]"
+                ? "bg-[#f2f2f2] text-[#0a0a0a]"
+                : "bg-[var(--wash)] text-[var(--ink)] ring-1 ring-[var(--line)]"
             }`}
           >
             English
@@ -437,7 +437,7 @@ export default function CreateFlow() {
             value={transcript}
             onChange={(e) => setTranscript(e.target.value)}
             rows={9}
-            className="w-full flex-1 rounded-2xl border border-[var(--line)] bg-white/80 p-5 text-xl leading-relaxed text-[var(--ink)] shadow-[var(--shadow-soft)] outline-none focus:border-[var(--teal)]"
+            className="w-full flex-1 rounded-2xl border border-[var(--line)] bg-[var(--wash)] p-5 text-xl leading-relaxed text-[var(--ink)] outline-none focus:border-[#666]"
           />
 
           <div className="flex flex-wrap gap-4">
@@ -465,7 +465,7 @@ export default function CreateFlow() {
             type="button"
             disabled={busy}
             onClick={() => void makeBook()}
-            className="mt-2 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[var(--teal)] px-8 text-xl font-semibold text-white disabled:opacity-60 sm:w-auto sm:self-start"
+            className="mt-2 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#f2f2f2] px-8 text-xl font-semibold text-[#0a0a0a] disabled:opacity-60 sm:w-auto sm:self-start"
           >
             {lang === "en" ? "Make my book" : "എന്റെ പുസ്തകം ഉണ്ടാക്കൂ"}
           </button>
@@ -491,7 +491,7 @@ export default function CreateFlow() {
               return (
                 <figure
                   key={idx}
-                  className={`panel-reveal overflow-hidden rounded-2xl bg-white/80 shadow-[var(--shadow-soft)] ${
+                  className={`panel-reveal overflow-hidden rounded-2xl bg-[var(--wash)] ring-1 ring-[var(--line)] ${
                     panel?.image_url ? "panel-reveal--in" : ""
                   }`}
                 >
@@ -503,7 +503,7 @@ export default function CreateFlow() {
                       className="aspect-square w-full object-cover"
                     />
                   ) : (
-                    <div className="flex aspect-square items-center justify-center bg-[var(--wash)] text-[var(--ink-soft)]">
+                    <div className="flex aspect-square items-center justify-center text-[var(--ink-soft)]">
                       {panel?.error || `… ${idx}`}
                     </div>
                   )}
@@ -524,8 +524,8 @@ export default function CreateFlow() {
             aria-label={lang === "en" ? "Book title" : "പുസ്തകത്തിന്റെ പേര്"}
           />
 
-          <div className="relative overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-soft)]">
-            <div className="relative aspect-square w-full bg-[var(--wash)]">
+          <div className="relative overflow-hidden rounded-3xl bg-[var(--wash)] ring-1 ring-[var(--line)]">
+            <div className="relative aspect-square w-full">
               {current.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -559,7 +559,7 @@ export default function CreateFlow() {
               type="button"
               disabled={page <= 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="min-h-14 min-w-28 rounded-2xl bg-white px-5 text-lg font-medium text-[var(--ink)] ring-1 ring-[var(--line)] disabled:opacity-40"
+              className="min-h-14 min-w-28 rounded-2xl bg-[var(--wash)] px-5 text-lg font-medium text-[var(--ink)] ring-1 ring-[var(--line)] disabled:opacity-40"
             >
               {lang === "en" ? "Back" : "പിന്നോട്ട്"}
             </button>
@@ -570,7 +570,7 @@ export default function CreateFlow() {
               type="button"
               disabled={page >= panels.length - 1}
               onClick={() => setPage((p) => Math.min(panels.length - 1, p + 1))}
-              className="min-h-14 min-w-28 rounded-2xl bg-[var(--teal)] px-5 text-lg font-medium text-white disabled:opacity-40"
+              className="min-h-14 min-w-28 rounded-2xl bg-[#f2f2f2] px-5 text-lg font-medium text-[#0a0a0a] disabled:opacity-40"
             >
               {lang === "en" ? "Next" : "അടുത്തത്"}
             </button>
